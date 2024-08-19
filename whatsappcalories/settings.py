@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-do8ccn4_z1#)4wf_*nnb^@^#4e%y#+cv)(#9hspfcdc3_=vv!7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['mynewnokiap8.pythonanywhere.com']
+ALLOWED_HOSTS = ['mynewnokiap8.pythonanywhere.com', "*"]
 
 
 # Application definition
