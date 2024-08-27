@@ -10,28 +10,20 @@ import time
 def get_data_mobile(pid, cal=0, mode=""):
     pid = int(pid)
     cal = int(cal)
-    if mode == "" or mode == "see_data":
-        person_id = pid
-        s = "what"
-        data = PersonData.objects.filter(person_id=pid).first()
-        if data:
-            if cal != 0:
-                data.add_data(int(cal))
-                print(f"calorie data is {cal} {data.cal_data} of person_id {data.person_id}.")
-                s = f"calorie data is {cal} {data.cal_data} of person_id {data.person_id}."
-            else:
-                print(f"data is {data.cal_data} of person_id {data.person_id}.")
-                s = f"data is {data.cal_data} of person_id {data.person_id}."
+    s="whatt..?"
+    person_id = pid
+    data = PersonData.objects.filter(person_id=pid).first()
+    if data:
+        if cal != 0:
+            msg = data.add_data(int(cal))
+            print(f"calorie data is {cal} {data.cal_data} of person_id {data.person_id}.")
+            s = f"{msg}\ncalorie data is {cal} {data.cal_data} of person_id {data.person_id}."
         else:
-            # Handle the case where the person_id does not exist
-            s = add_user(pid)
-            # data = PersonData(
-            #     person_id=pid,
-            #     cal_data={}
-            # )
-            # data.save()
-            # print(f"Person with ID {person_id} added to dataBase.")
-            # s = f"Person with ID {pid} added to dataBase."
+            print(f"data is {data.cal_data} of person_id {data.person_id}.")
+            s = f"data is {data.cal_data} of person_id {data.person_id}."
+    else:
+        print(f"Person with ID {person_id} does not Exist.")
+        s = f"Person with ID {person_id} does not Exist."
 
     return s
 
