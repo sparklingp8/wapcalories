@@ -8,9 +8,9 @@ import time
 
 
 def get_data_mobile(request, pid, cal=0, mode=""):
-    cal = 0
-    mode = ""
-    pid = int(pid)
+
+
+
     cal = int(cal)
     s = "whatt..?"
     person_id = pid
@@ -61,7 +61,8 @@ def bot(request):
         response = MessagingResponse()
 
         u_data = str(user_msg).split(",")
-        response.message(f"{u_data[0]},len(u_data)")
+        rsp="okk"
+        #response.message(f"{u_data[0]},len(u_data)")
         if len(u_data) > 1:
             rsp = get_data_mobile(request, u_data[0], int(u_data[1]), mode="")
         else:
@@ -69,10 +70,11 @@ def bot(request):
 
         # For demonstration, we'll just echo the user's message
         # Note: Using eval() is dangerous and not recommended in production
-        r = response.message(f"{str(rsp)}")
+        response.message(f"{str(rsp)}")
 
-        print("rqqq", str(rsp), "rsppp", r)
-        return HttpResponse(str(rsp), content_type='text/xml')
+        print(str(response),f"--->{str(rsp)}<---")
+        return HttpResponse(str(response), content_type='text/xml')
+
 
 
 # Create your views here.
