@@ -7,7 +7,7 @@ from .models import PersonData
 import time
 
 
-def get_data_mobile(pid, cal=0, mode=""):
+def get_data_mobile(pid=999, cal=0, mode=""):
     pid = int(pid)
     cal = int(cal)
     s="whatt..?"
