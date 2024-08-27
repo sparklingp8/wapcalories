@@ -7,10 +7,12 @@ from .models import PersonData
 import time
 
 
-def get_data_mobile(pid=999, cal=0, mode=""):
+def get_data_mobile(request, pid, cal=0, mode=""):
+    cal = 0
+    mode = ""
     pid = int(pid)
     cal = int(cal)
-    s="whatt..?"
+    s = "whatt..?"
     person_id = pid
     data = PersonData.objects.filter(person_id=pid).first()
     if data:
@@ -24,8 +26,10 @@ def get_data_mobile(pid=999, cal=0, mode=""):
     else:
         print(f"Person with ID {person_id} does not Exist.")
         s = f"Person with ID {person_id} does not Exist."
-
-    return s
+    if 'application/json' in request.META.get('HTTP_ACCEPT', ''):
+        return s
+    else:
+        return HttpResponse(s)
 
 
 def add_get_cal_data(request, pid, cal=0):
