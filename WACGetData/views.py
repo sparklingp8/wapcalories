@@ -67,8 +67,8 @@ def bot(request):
         # Note: Using eval() is dangerous and not recommended in production
         response.message(f"{str(rsp)}")
 
-        print(str(response))
-        return HttpResponse(str(response), content_type='text/xml')
+        print(str(rsp))
+        return HttpResponse(str(rsp), content_type='text/xml')
 
 
 # Create your views here.
