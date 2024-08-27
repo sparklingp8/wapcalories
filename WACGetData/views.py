@@ -71,7 +71,7 @@ def bot(request):
         # Note: Using eval() is dangerous and not recommended in production
         response.message(f"{str(rsp)}")
 
-        print(str(rsp))
+        print(str(rsp),"rsppp")
         return HttpResponse(str(rsp), content_type='text/xml')
 
 
