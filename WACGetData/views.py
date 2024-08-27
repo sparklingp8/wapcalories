@@ -61,7 +61,7 @@ def bot(request):
         response = MessagingResponse()
 
         u_data = str(user_msg).split(",")
-        #response.message(f"{u_data[0]},len(u_data)")
+        response.message(f"{u_data[0]},len(u_data)")
         if len(u_data) > 1:
             rsp = get_data_mobile(request, u_data[0], int(u_data[1]), mode="")
         else:
