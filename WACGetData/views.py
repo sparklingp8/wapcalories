@@ -29,7 +29,7 @@ def get_data_mobile(request, pid, cal=0, mode=""):
     if 'application/json' in request.META.get('HTTP_ACCEPT', ''):
         return s
     else:
-        return HttpResponse(s)
+        return s
 
 
 def add_get_cal_data(request, pid, cal=0):
