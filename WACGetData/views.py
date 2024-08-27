@@ -63,9 +63,9 @@ def bot(request):
         u_data = str(user_msg).split(",")
         #response.message(f"{u_data[0]},len(u_data)")
         if len(u_data) > 1:
-            rsp = get_data_mobile(u_data[0], u_data[1], mode="")
+            rsp = get_data_mobile(request, u_data[0], u_data[1], mode="")
         else:
-            rsp = get_data_mobile(u_data[0], 0, mode="")
+            rsp = get_data_mobile(request, u_data[0], 0, mode="")
 
         # For demonstration, we'll just echo the user's message
         # Note: Using eval() is dangerous and not recommended in production
