@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('wac/', include("WACGetData.urls")),
+    path('time/',include("timeCounter.urls")),
 ]
