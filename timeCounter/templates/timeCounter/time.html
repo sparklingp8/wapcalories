@@ -2,219 +2,206 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Time Countdown</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timers</title>
     <style>
-        :root {
-            --bg-color: #1a1a2e;
-            --primary-color: #4a4e69;
-            --text-color: #f0f0f0;
-            --highlight-color: #22d1ee;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: var(--bg-color);
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            padding: 20px;
-            min-width: 1000px;
-            
-        }
+    font-family: 'Orbitron', sans-serif;
+    background-color: #0a0a1a;
+    display: flex;
+    flex-direction: column; /* Stack countdown containers vertically */
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    gap: 20px; /* Space between countdown containers */
+}
 
-        .countdown-grid {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            width: 100%;
-            max-width: 500px;
-        }
+.countdown-container {
+    background-color: rgba(0,0,0,0.7);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    padding: 30px;
+    width: 100%; /* Stretch to fill screen width */
+    max-width: 800px; /* Restrict width for larger screens */
+    margin: 0 auto; /* Center horizontally */
+    display: flex; /* Align content inside in a row */
+    flex-wrap: wrap; /* Ensure responsive wrapping on smaller screens */
+    gap: 20px; /* Space between elements */
+    justify-content: space-evenly; /* Distribute items evenly */
+    align-items: center; /* Center items vertically */
+    min-width: 550px;
+}
 
-        .countdown-container {
-            background-color: var(--primary-color);
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            padding: 20px;
-            text-align: center;
-            width: 100%;
-            transition: transform 0.3s ease;
-        }
+.countdown-grid {
+    display: flex;
+    gap: 15px; /* Space between timer segments */
+    justify-content: center; /* Center timer segments horizontally */
+}
 
-        .countdown-container:hover {
-            transform: scale(1.03);
-        }
+.timer-segment {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        .countdown-timer {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
+.timer-card {
+    width: 100px; /* Fixed width for consistency */
+    height: 80px;
+    background-color: #111;
+    border: 2px solid #00ffff;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
 
-        .countdown-digit-wrapper {
-            position: relative;
-            width: 200px;
-            height: 80px;
-            min-width: 20px;
-            overflow: hidden;
-        }
+.timer-value {
+    font-size: 36px;
+    color: #00ffff;
+    position: absolute;
+    transition: transform 1s ease;
+}
 
-        .countdown-digit {
-            background-color: var(--bg-color);
-            color: var(--highlight-color);
-            font-size: 48px;
-            font-weight: bold;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            position: absolute;
-            transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
-        }
+.timer-label {
+    color: #00ffff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 10px;
+    opacity: 0.7;
+    font-size: 12px;
+}
 
-        .countdown-separator {
-            color: var(--text-color);
-            font-size: 48px;
-            display: flex;
-            align-items: center;
-            margin: 0 10px;
-        }
+.event-title {
+    color: #ffffff; /* White text */
+    font-size: 24px; /* Slightly larger font size for better readability */
+    font-weight: bold; /* Make the text bold */
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6); /* Enhanced glow effect */
+    flex: 1 0 100%; /* Take full width in a new row */
+    text-align: center;
+    margin-bottom: 20px; /* Space below the event title */
+}
 
-        .countdown-label {
-            color: var(--text-color);
-            font-size: 16px;
-            margin-top: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+.times-up {
+    display: none;
+    color: #ff5e5e;
+    font-size: 16px;
+    flex: 1 0 100%; /* Take full width in a new row */
+    text-align: center;
+}
 
-        @media (max-width: 768px) {
-            .countdown-digit-wrapper {
-                width: 50px;
-                height: 60px;
-            }
-            .countdown-digit {
-                font-size: 36px;
-            }
-            .countdown-separator {
-                font-size: 36px;
-            }
-        }
+
     </style>
 </head>
 <body>
-    <div class="countdown-grid">
-        {% for date in important_dates %}
-        <div class="countdown-container" data-target-date="{{ date.date }}">
-            <div class="countdown-timer" id="countdown-{{ loop.index }}">
-                <div class="countdown-digit-wrapper" style="width: 700px;">
-                    <div class="countdown-digit"  data-type="days">0</div>
+    <!-- JSON Data for timers -->
+    <script id="timers-data" type="application/json">{{ timers_json | safe }}</script>
+
+    {% for timer in timers %}
+    <div class="countdown-container">
+        <div class="event-title">{{ timer.event_name }}</div>
+        <div id="countdown-{{ forloop.counter }}" class="countdown-grid" >
+            <div class="timer-segment" >
+                <div id="days-{{ forloop.counter }}" class="timer-card" style="width: 200px;" >
+                    <div class="timer-value" style="padding: 100px;">00</div>
                 </div>
-                <div class="countdown-separator">:</div>
-                <div class="countdown-digit-wrapper" style="width: 280px;">
-                    <div class="countdown-digit" data-type="hours">0</div>
-                </div>
-                <div class="countdown-separator">:</div>
-                <div class="countdown-digit-wrapper" style="width: 280px;">
-                    <div class="countdown-digit" data-type="minutes">0</div>
-                </div>
-                <div class="countdown-separator">:</div>
-                <div class="countdown-digit-wrapper" style="width: 280px;">
-                    <div class="countdown-digit" data-type="seconds">0</div>
-                </div>
+                <div class="timer-label">Days</div>
             </div>
-            <div class="countdown-label">{{ date.label }}</div>
+            <div class="timer-segment">
+                <div id="hours-{{ forloop.counter }}" class="timer-card">
+                    <div class="timer-value">00</div>
+                </div>
+                <div class="timer-label">Hours</div>
+            </div>
+            <div class="timer-segment">
+                <div id="minutes-{{ forloop.counter }}" class="timer-card">
+                    <div class="timer-value">00</div>
+                </div>
+                <div class="timer-label">Minutes</div>
+            </div>
+            <div class="timer-segment">
+                <div id="seconds-{{ forloop.counter }}" class="timer-card">
+                    <div class="timer-value">00</div>
+                </div>
+                <div class="timer-label">Seconds</div>
+            </div>
         </div>
-        {% endfor %}
+        <div id="times-up-{{ forloop.counter }}" class="times-up">
+            Time's up for {{ timer.event_name }}!
+        </div>
     </div>
+    {% endfor %}
 
     <script>
-        function createNumericAnimation(element, start, end) {
-            const duration = 500; // Animation duration in ms
-            const startTime = performance.now();
+        document.addEventListener("DOMContentLoaded", () => {
+            const timers = JSON.parse(document.getElementById('timers-data').textContent);
+            const timerIntervals = [];
 
-            function update(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                
-                // Easing function for smooth animation
-                const easedProgress = 1 - Math.pow(1 - progress, 4);
-                const currentNum = Math.floor(start + (end - start) * easedProgress);
-                
-                element.textContent = currentNum.toString().padStart(2, '0');
-                
-                if (progress < 1) {
-                    requestAnimationFrame(update);
+            function pad(num) {
+                return num.toString().padStart(2, '0');
+            }
+
+            function createCountdown(config, index) {
+                const targetTime = new Date(config.target_time);
+                const countdownEl = document.getElementById(`countdown-${index}`);
+                const timesUpEl = document.getElementById(`times-up-${index}`);
+                const daysEl = document.getElementById(`days-${index}`);
+                const hoursEl = document.getElementById(`hours-${index}`);
+                const minutesEl = document.getElementById(`minutes-${index}`);
+                const secondsEl = document.getElementById(`seconds-${index}`);
+
+                function updateTimer() {
+                    const now = new Date();
+                    const difference = targetTime - now;
+
+                    if (difference > 0) {
+                        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+                        const minutes = Math.floor((difference / (1000 * 60)) % 60);
+                        const seconds = Math.floor((difference / 1000) % 60);
+
+                        updateValue(daysEl, pad(days));
+                        updateValue(hoursEl, pad(hours));
+                        updateValue(minutesEl, pad(minutes));
+                        updateValue(secondsEl, pad(seconds));
+                    } else {
+                        clearInterval(timerIntervals[index - 1]);
+                        countdownEl.style.display = "none";
+                        timesUpEl.style.display = "block";
+                    }
+                }
+
+                updateTimer();
+                return setInterval(updateTimer, 1000);
+            }
+
+            function updateValue(element, newValue) {
+                if (!element) return;
+                const currentValue = element.querySelector('.timer-value').textContent;
+                if (currentValue !== newValue) {
+                    const currentEl = element.querySelector('.timer-value');
+                    const newEl = document.createElement('div');
+                    newEl.className = 'timer-value';
+                    newEl.textContent = newValue;
+
+                    element.appendChild(newEl);
+
+                    currentEl.style.transform = 'translateY(100%)';
+                    newEl.style.transform = 'translateY(0)';
+
+                    setTimeout(() => element.removeChild(currentEl), 500);
                 }
             }
 
-            requestAnimationFrame(update);
-        }
-
-        function updateCountdowns() {
-            const countdownContainers = document.querySelectorAll('.countdown-container');
-            
-            countdownContainers.forEach(container => {
-                const targetDateStr = container.getAttribute('data-target-date');
-                const targetDate = new Date(targetDateStr).getTime();
-                
-                const now = new Date().getTime();
-                const timeLeft = targetDate - now;
-                
-                if (timeLeft > 0) {
-                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                    
-                    // Days
-                    const daysEl = container.querySelector('.countdown-digit[data-type="days"]');
-                    const currentDays = parseInt(daysEl.textContent);
-                    if (currentDays !== days) {
-                        createNumericAnimation(daysEl, currentDays, days);
-                    }
-                    
-                    // Hours
-                    const hoursEl = container.querySelector('.countdown-digit[data-type="hours"]');
-                    const currentHours = parseInt(hoursEl.textContent);
-                    if (currentHours !== hours) {
-                        createNumericAnimation(hoursEl, currentHours, hours);
-                    }
-                    
-                    // Minutes
-                    const minutesEl = container.querySelector('.countdown-digit[data-type="minutes"]');
-                    const currentMinutes = parseInt(minutesEl.textContent);
-                    if (currentMinutes !== minutes) {
-                        createNumericAnimation(minutesEl, currentMinutes, minutes);
-                    }
-                    
-                    // Seconds
-                    const secondsEl = container.querySelector('.countdown-digit[data-type="seconds"]');
-                    const currentSeconds = parseInt(secondsEl.textContent);
-                    if (currentSeconds !== seconds) {
-                        createNumericAnimation(secondsEl, currentSeconds, seconds);
-                    }
-                } else {
-                    container.innerHTML = '<div class="countdown-label">Expired</div>';
-                }
+            timers.forEach((timer, index) => {
+                timerIntervals.push(createCountdown(timer, index + 1));
             });
-        }
-
-        // Update countdowns every second
-        setInterval(updateCountdowns, 1000);
-        // Initial call to set countdowns immediately
-        updateCountdowns();
+        });
     </script>
 </body>
 </html>

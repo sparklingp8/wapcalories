@@ -3,16 +3,23 @@ from django.http import HttpResponse
 # Create your views here.
 import time
 from datetime import datetime, timedelta
-
+import json
 
 def getAge(request):
-    theTime = datetime(2030, 11, 8)
-    theTime = datetime.now() + timedelta(minutes=1)
-    print(theTime)
-    important_dates = [
-    {"date": "2070-03-07", "label": "Last"},
-    {"date": "2030-03-07", "label": "Dream"},
-    # Add more dates as needed
-]
+    timers = [
+        {
+            'event_name': 'Dreams',
+            'target_time': '2025-06-06 19:43:46'
+        },
+        {
+            'event_name': 'Life',
+            'target_time': '2060-01-01 00:00:00'
+        }
+    ]
 
-    return render(request, "timeCounter/time.html", {"important_dates":important_dates})
+    context = {
+        'timers': timers,
+        'timers_json': json.dumps(timers)  # Pass JSON-serialized data to the template
+    }
+
+    return render(request, 'timeCounter/time.html', context)
