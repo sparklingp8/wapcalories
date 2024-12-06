@@ -1,8 +1,220 @@
-<html>
-    <head>
-        <title> Time</title>
-    </head>
-    <body>
-        Time Is Running Fast : {{ theTime }}
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Countdown</title>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --primary-color: #4a4e69;
+            --text-color: #f0f0f0;
+            --highlight-color: #22d1ee;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            min-width: 1000px;
+            
+        }
+
+        .countdown-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .countdown-container {
+            background-color: var(--primary-color);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .countdown-container:hover {
+            transform: scale(1.03);
+        }
+
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .countdown-digit-wrapper {
+            position: relative;
+            width: 200px;
+            height: 80px;
+            min-width: 20px;
+            overflow: hidden;
+        }
+
+        .countdown-digit {
+            background-color: var(--bg-color);
+            color: var(--highlight-color);
+            font-size: 48px;
+            font-weight: bold;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            position: absolute;
+            transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .countdown-separator {
+            color: var(--text-color);
+            font-size: 48px;
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+
+        .countdown-label {
+            color: var(--text-color);
+            font-size: 16px;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .countdown-digit-wrapper {
+                width: 50px;
+                height: 60px;
+            }
+            .countdown-digit {
+                font-size: 36px;
+            }
+            .countdown-separator {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown-grid">
+        {% for date in important_dates %}
+        <div class="countdown-container" data-target-date="{{ date.date }}">
+            <div class="countdown-timer" id="countdown-{{ loop.index }}">
+                <div class="countdown-digit-wrapper" style="width: 700px;">
+                    <div class="countdown-digit"  data-type="days">0</div>
+                </div>
+                <div class="countdown-separator">:</div>
+                <div class="countdown-digit-wrapper" style="width: 280px;">
+                    <div class="countdown-digit" data-type="hours">0</div>
+                </div>
+                <div class="countdown-separator">:</div>
+                <div class="countdown-digit-wrapper" style="width: 280px;">
+                    <div class="countdown-digit" data-type="minutes">0</div>
+                </div>
+                <div class="countdown-separator">:</div>
+                <div class="countdown-digit-wrapper" style="width: 280px;">
+                    <div class="countdown-digit" data-type="seconds">0</div>
+                </div>
+            </div>
+            <div class="countdown-label">{{ date.label }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        function createNumericAnimation(element, start, end) {
+            const duration = 500; // Animation duration in ms
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function for smooth animation
+                const easedProgress = 1 - Math.pow(1 - progress, 4);
+                const currentNum = Math.floor(start + (end - start) * easedProgress);
+                
+                element.textContent = currentNum.toString().padStart(2, '0');
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        function updateCountdowns() {
+            const countdownContainers = document.querySelectorAll('.countdown-container');
+            
+            countdownContainers.forEach(container => {
+                const targetDateStr = container.getAttribute('data-target-date');
+                const targetDate = new Date(targetDateStr).getTime();
+                
+                const now = new Date().getTime();
+                const timeLeft = targetDate - now;
+                
+                if (timeLeft > 0) {
+                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                    
+                    // Days
+                    const daysEl = container.querySelector('.countdown-digit[data-type="days"]');
+                    const currentDays = parseInt(daysEl.textContent);
+                    if (currentDays !== days) {
+                        createNumericAnimation(daysEl, currentDays, days);
+                    }
+                    
+                    // Hours
+                    const hoursEl = container.querySelector('.countdown-digit[data-type="hours"]');
+                    const currentHours = parseInt(hoursEl.textContent);
+                    if (currentHours !== hours) {
+                        createNumericAnimation(hoursEl, currentHours, hours);
+                    }
+                    
+                    // Minutes
+                    const minutesEl = container.querySelector('.countdown-digit[data-type="minutes"]');
+                    const currentMinutes = parseInt(minutesEl.textContent);
+                    if (currentMinutes !== minutes) {
+                        createNumericAnimation(minutesEl, currentMinutes, minutes);
+                    }
+                    
+                    // Seconds
+                    const secondsEl = container.querySelector('.countdown-digit[data-type="seconds"]');
+                    const currentSeconds = parseInt(secondsEl.textContent);
+                    if (currentSeconds !== seconds) {
+                        createNumericAnimation(secondsEl, currentSeconds, seconds);
+                    }
+                } else {
+                    container.innerHTML = '<div class="countdown-label">Expired</div>';
+                }
+            });
+        }
+
+        // Update countdowns every second
+        setInterval(updateCountdowns, 1000);
+        // Initial call to set countdowns immediately
+        updateCountdowns();
+    </script>
+</body>
 </html>
