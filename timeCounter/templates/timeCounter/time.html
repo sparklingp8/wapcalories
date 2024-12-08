@@ -1,56 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Countdown Timers</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-        body {
+       @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+body {
     font-family: 'Orbitron', sans-serif;
     background-color: #0a0a1a;
     display: flex;
-    flex-direction: column; /* Stack countdown containers vertically */
+    flex-direction: column;
     align-items: center;
     min-height: 100vh;
     margin: 0;
     color: #fff;
     text-align: center;
-    padding: 20px;
-    gap: 20px; /* Space between countdown containers */
+    padding: 30px;
+    gap: 20px;
+    
 }
 
 .countdown-container {
     background-color: rgba(0,0,0,0.7);
     border-radius: 15px;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-    padding: 30px;
-    width: 100%; /* Stretch to fill screen width */
-    max-width: 800px; /* Restrict width for larger screens */
-    margin: 0 auto; /* Center horizontally */
-    display: flex; /* Align content inside in a row */
-    flex-wrap: wrap; /* Ensure responsive wrapping on smaller screens */
-    gap: 20px; /* Space between elements */
-    justify-content: space-evenly; /* Distribute items evenly */
-    align-items: center; /* Center items vertically */
-    min-width: 550px;
+    padding: 20px;
+    width: 98%; /* Responsive width */
+    max-width: 800px;
+    
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: space-evenly;
+    align-items: center;
 }
 
 .countdown-grid {
     display: flex;
-    gap: 15px; /* Space between timer segments */
-    justify-content: center; /* Center timer segments horizontally */
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
 }
 
 .timer-segment {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin: 5px;
 }
 
 .timer-card {
-    width: 100px; /* Fixed width for consistency */
-    height: 80px;
+    width: 80px; /* Reduced width for better responsiveness */
+    height: 70px;
     background-color: #111;
     border: 2px solid #00ffff;
     border-radius: 10px;
@@ -60,9 +64,21 @@
     position: relative;
     overflow: hidden;
 }
-
+.timer-card-days {
+    width: 100px; /* Reduced width for better responsiveness */
+    height: 70px;
+    background-color: #111;
+    border: 2px solid #00ffff;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    font-weight: bold;
+}
 .timer-value {
-    font-size: 36px;
+    font-size: 30px; /* Slightly smaller font */
     color: #00ffff;
     position: absolute;
     transition: transform 1s ease;
@@ -72,32 +88,90 @@
     color: #00ffff;
     text-transform: uppercase;
     letter-spacing: 2px;
-    margin-top: 10px;
+    margin-top: 8px;
     opacity: 0.7;
-    font-size: 12px;
+    font-size: 10px;
 }
 
 .event-title {
-    color: #ffffff; /* White text */
-    font-size: 24px; /* Slightly larger font size for better readability */
-    font-weight: bold; /* Make the text bold */
-    text-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6); /* Enhanced glow effect */
-    flex: 1 0 100%; /* Take full width in a new row */
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6);
+    flex: 1 0 100%;
     text-align: center;
-    margin-bottom: 20px; /* Space below the event title */
+    margin-bottom: 15px;
 }
 
 .times-up {
     display: none;
     color: #ff5e5e;
     font-size: 16px;
-    flex: 1 0 100%; /* Take full width in a new row */
+    flex: 1 0 100%;
     text-align: center;
 }
 
+/* Media Queries for Enhanced Responsiveness */
+@media screen and (max-width: 600px) {
+    .countdown-container {
+        width: 98%;
+        padding: 10px;
+        gap: 10px;
+    }
 
+    .timer-card {
+        width: 60px;
+        height: 55px;
+    }
+    .timer-card-days {
+        width: 70px;
+        height: 55px;
+    }
+
+    .timer-value {
+        font-size: 24px;
+    }
+
+    .timer-label {
+        font-size: 8px;
+        margin-top: 5px;
+    }
+
+    .event-title {
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .countdown-container {
+        width: 98%;
+        padding: 10px;
+    }
+
+    .timer-card {
+        width: 50px;
+        height: 45px;
+    }
+     .timer-card-days {
+        width: 69px;
+        height: 45px;
+    }
+
+    .timer-value {
+        font-size: 20px;
+    }
+
+    .timer-label {
+        font-size: 6px;
+    }
+
+    .event-title {
+        font-size: 14px;
+    }
+}
     </style>
 </head>
+
 <body>
     <!-- JSON Data for timers -->
     <script id="timers-data" type="application/json">{{ timers_json | safe }}</script>
@@ -105,10 +179,10 @@
     {% for timer in timers %}
     <div class="countdown-container">
         <div class="event-title">{{ timer.event_name }}</div>
-        <div id="countdown-{{ forloop.counter }}" class="countdown-grid" >
-            <div class="timer-segment" >
-                <div id="days-{{ forloop.counter }}" class="timer-card" style="width: 200px;" >
-                    <div class="timer-value" style="padding: 100px;">00</div>
+        <div id="countdown-{{ forloop.counter }}" class="countdown-grid">
+            <div class="timer-segment">
+                <div id="days-{{ forloop.counter }}" class="timer-card-days">
+                    <div class="timer-value">00</div>
                 </div>
                 <div class="timer-label">Days</div>
             </div>
@@ -203,5 +277,7 @@
             });
         });
     </script>
+
 </body>
+
 </html>
