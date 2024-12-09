@@ -23,10 +23,10 @@ def getAge(request):
             'event_name': 'Python Master',
             'target_time': '2025-02-26 23:58:02'
         },
-        # {
-        #     'event_name': 'USA',
-        #     'target_time': '2025-02-26 23:58:00'
-        # },
+        {
+            'event_name': 'USA',
+            'target_time': '2026-07-04 00:04:08'
+        },
     ]
 
     # Sort the timers list by 'target_time' after converting the string to a datetime object

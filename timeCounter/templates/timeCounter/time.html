@@ -6,174 +6,189 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Countdown Timers</title>
     <style>
-       @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
-body {
-    font-family: 'Orbitron', sans-serif;
-    background-color: #0a0a1a;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    color: #fff;
-    text-align: center;
-    padding: 30px;
-    gap: 20px;
-    
-}
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #0a0a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* Ensures content centers vertically and horizontally */
+            min-height: 100vh;
+            margin: 0;
+            padding: 5vw;
+            /* Responsive padding */
+            gap: 2vh;
+            /* Responsive gap */
+            color: #fff;
+            text-align: center;
+            box-sizing: border-box;
+            /* Ensures consistent sizing */
+        }
 
-.countdown-container {
-    background-color: rgba(0,0,0,0.7);
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-    padding: 20px;
-    width: 98%; /* Responsive width */
-    max-width: 800px;
-    
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: space-evenly;
-    align-items: center;
-}
 
-.countdown-grid {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
-}
+        .countdown-container {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            padding: 20px;
+            width: 98%;
+            /* Responsive width */
+            max-width: 800px;
 
-.timer-segment {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 5px;
-}
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-evenly;
+            align-items: center;
+        }
 
-.timer-card {
-    width: 80px; /* Reduced width for better responsiveness */
-    height: 70px;
-    background-color: #111;
-    border: 2px solid #00ffff;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-}
-.timer-card-days {
-    width: 100px; /* Reduced width for better responsiveness */
-    height: 70px;
-    background-color: #111;
-    border: 2px solid #00ffff;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-    font-weight: bold;
-}
-.timer-value {
-    font-size: 30px; /* Slightly smaller font */
-    color: #00ffff;
-    position: absolute;
-    transition: transform 1s ease;
-}
+        .countdown-grid {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            /* Allow wrapping on smaller screens */
+        }
 
-.timer-label {
-    color: #00ffff;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-top: 8px;
-    opacity: 0.7;
-    font-size: 10px;
-}
+        .timer-segment {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px;
+        }
 
-.event-title {
-    color: #ffffff;
-    font-size: 20px;
-    font-weight: bold;
-    text-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6);
-    flex: 1 0 100%;
-    text-align: center;
-    margin-bottom: 15px;
-}
+        .timer-card {
+            width: 80px;
+            /* Reduced width for better responsiveness */
+            height: 70px;
+            background-color: #111;
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-.times-up {
-    display: none;
-    color: #ff5e5e;
-    font-size: 16px;
-    flex: 1 0 100%;
-    text-align: center;
-}
+        .timer-card-days {
+            width: 120px;
+            /* Reduced width for better responsiveness */
+            height: 70px;
+            background-color: #111;
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            font-weight: bold;
+        }
 
-/* Media Queries for Enhanced Responsiveness */
-@media screen and (max-width: 600px) {
-    .countdown-container {
-        width: 98%;
-        padding: 10px;
-        gap: 10px;
-    }
+        .timer-value {
+            font-size: 30px;
+            /* Slightly smaller font */
+            color: #00ffff;
+            position: absolute;
+            transition: transform 1s ease;
+        }
 
-    .timer-card {
-        width: 60px;
-        height: 55px;
-    }
-    .timer-card-days {
-        width: 70px;
-        height: 55px;
-    }
+        .timer-label {
+            color: #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 8px;
+            opacity: 0.7;
+            font-size: 10px;
+        }
 
-    .timer-value {
-        font-size: 24px;
-    }
+        .event-title {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6);
+            flex: 1 0 100%;
+            text-align: center;
+            margin-bottom: 15px;
+        }
 
-    .timer-label {
-        font-size: 8px;
-        margin-top: 5px;
-    }
+        .times-up {
+            display: none;
+            color: #ff5e5e;
+            font-size: 16px;
+            flex: 1 0 100%;
+            text-align: center;
+        }
 
-    .event-title {
-        font-size: 16px;
-    }
-}
+        /* Media Queries for Enhanced Responsiveness */
+        @media screen and (max-width: 600px) {
+            .countdown-container {
+                width: 98%;
+                padding: 10px;
+                gap: 10px;
+            }
 
-@media screen and (max-width: 400px) {
-    .countdown-container {
-        width: 98%;
-        padding: 10px;
-    }
+            .timer-card {
+                width: 60px;
+                height: 55px;
+            }
 
-    .timer-card {
-        width: 50px;
-        height: 45px;
-    }
-     .timer-card-days {
-        width: 69px;
-        height: 45px;
-    }
+            .timer-card-days {
+                width: 70px;
+                height: 55px;
+            }
 
-    .timer-value {
-        font-size: 20px;
-    }
+            .timer-value {
+                font-size: 24px;
+            }
 
-    .timer-label {
-        font-size: 6px;
-    }
+            .timer-label {
+                font-size: 8px;
+                margin-top: 5px;
+            }
 
-    .event-title {
-        font-size: 14px;
-    }
-}
+            .event-title {
+                font-size: 16px;
+            }
+        }
+
+        @media screen and (max-width: 400px) {
+            .countdown-container {
+                width: 98%;
+                padding: 10px;
+            }
+
+            .timer-card {
+                width: 50px;
+                height: 45px;
+            }
+
+            .timer-card-days {
+                width: 69px;
+                height: 45px;
+            }
+
+            .timer-value {
+                font-size: 20px;
+            }
+
+            .timer-label {
+                font-size: 6px;
+            }
+
+            .event-title {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <!-- JSON Data for timers -->
+    <p style="color: Red;font-weight: bold;font-size: 26px;text-shadow: 0 0 15px rgba(255, 98, 0, 0.8), 0 0 30px rgba(255, 102, 0, 0.6);">Time is RUNNING...!</p>    <!-- JSON Data for timers -->
     <script id="timers-data" type="application/json">{{ timers_json | safe }}</script>
 
     {% for timer in timers %}
