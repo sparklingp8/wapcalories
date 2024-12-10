@@ -15,19 +15,14 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            /* Ensures content centers vertically and horizontally */
             min-height: 100vh;
             margin: 0;
-            padding: 5vw;
-            /* Responsive padding */
+            padding: 0 5vw;
             gap: 2vh;
-            /* Responsive gap */
             color: #fff;
             text-align: center;
             box-sizing: border-box;
-            /* Ensures consistent sizing */
         }
-
 
         .countdown-container {
             background-color: rgba(0, 0, 0, 0.7);
@@ -35,9 +30,7 @@
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
             padding: 20px;
             width: 98%;
-            /* Responsive width */
             max-width: 800px;
-
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
@@ -50,7 +43,6 @@
             gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
-            /* Allow wrapping on smaller screens */
         }
 
         .timer-segment {
@@ -58,11 +50,11 @@
             flex-direction: column;
             align-items: center;
             margin: 5px;
+            position: relative;
         }
 
-        .timer-card {
+        .odometer-card {
             width: 80px;
-            /* Reduced width for better responsiveness */
             height: 70px;
             background-color: #111;
             border: 2px solid #00ffff;
@@ -74,9 +66,8 @@
             overflow: hidden;
         }
 
-        .timer-card-days {
+        .odometer-card-days {
             width: 120px;
-            /* Reduced width for better responsiveness */
             height: 70px;
             background-color: #111;
             border: 2px solid #00ffff;
@@ -89,12 +80,12 @@
             font-weight: bold;
         }
 
-        .timer-value {
-            font-size: 30px;
-            /* Slightly smaller font */
+        .odometer-number {
+            font-size: 1.1em;
             color: #00ffff;
             position: absolute;
-            transition: transform 1s ease;
+            transition: transform 0.5s ease-in-out;
+            padding: 10px;
         }
 
         .timer-label {
@@ -132,12 +123,12 @@
                 gap: 10px;
             }
 
-            .timer-card {
+            .odometer-card {
                 width: 60px;
                 height: 55px;
             }
 
-            .timer-card-days {
+            .odometer-card-days {
                 width: 70px;
                 height: 55px;
             }
@@ -162,12 +153,12 @@
                 padding: 10px;
             }
 
-            .timer-card {
+            .odometer-card {
                 width: 50px;
                 height: 45px;
             }
 
-            .timer-card-days {
+            .odometer-card-days {
                 width: 69px;
                 height: 45px;
             }
@@ -188,7 +179,8 @@
 </head>
 
 <body>
-    <p style="color: Red;font-weight: bold;font-size: 26px;text-shadow: 0 0 15px rgba(255, 98, 0, 0.8), 0 0 30px rgba(255, 102, 0, 0.6);">Time is RUNNING...!</p>    <!-- JSON Data for timers -->
+    <p style="color: Red;font-weight: bold;font-size: 26px;text-shadow: 0 0 15px rgba(255, 98, 0, 0.8), 0 0 30px rgba(255, 102, 0, 0.6);">Time is RUNNING...!</p>
+    
     <script id="timers-data" type="application/json">{{ timers_json | safe }}</script>
 
     {% for timer in timers %}
@@ -196,26 +188,26 @@
         <div class="event-title">{{ timer.event_name }}</div>
         <div id="countdown-{{ forloop.counter }}" class="countdown-grid">
             <div class="timer-segment">
-                <div id="days-{{ forloop.counter }}" class="timer-card-days">
-                    <div class="timer-value">00</div>
+                <div id="days-{{ forloop.counter }}" class="odometer-card-days">
+                    <div class="odometer-number">00</div>
                 </div>
                 <div class="timer-label">Days</div>
             </div>
             <div class="timer-segment">
-                <div id="hours-{{ forloop.counter }}" class="timer-card">
-                    <div class="timer-value">00</div>
+                <div id="hours-{{ forloop.counter }}" class="odometer-card">
+                    <div class="odometer-number">00</div>
                 </div>
                 <div class="timer-label">Hours</div>
             </div>
             <div class="timer-segment">
-                <div id="minutes-{{ forloop.counter }}" class="timer-card">
-                    <div class="timer-value">00</div>
+                <div id="minutes-{{ forloop.counter }}" class="odometer-card">
+                    <div class="odometer-number">00</div>
                 </div>
                 <div class="timer-label">Minutes</div>
             </div>
             <div class="timer-segment">
-                <div id="seconds-{{ forloop.counter }}" class="timer-card">
-                    <div class="timer-value">00</div>
+                <div id="seconds-{{ forloop.counter }}" class="odometer-card">
+                    <div class="odometer-number">00</div>
                 </div>
                 <div class="timer-label">Seconds</div>
             </div>
@@ -254,10 +246,10 @@
                         const minutes = Math.floor((difference / (1000 * 60)) % 60);
                         const seconds = Math.floor((difference / 1000) % 60);
 
-                        updateValue(daysEl, pad(days));
-                        updateValue(hoursEl, pad(hours));
-                        updateValue(minutesEl, pad(minutes));
-                        updateValue(secondsEl, pad(seconds));
+                        updateOdometerCard(daysEl, pad(days));
+                        updateOdometerCard(hoursEl, pad(hours));
+                        updateOdometerCard(minutesEl, pad(minutes));
+                        updateOdometerCard(secondsEl, pad(seconds));
                     } else {
                         clearInterval(timerIntervals[index - 1]);
                         countdownEl.style.display = "none";
@@ -269,21 +261,34 @@
                 return setInterval(updateTimer, 1000);
             }
 
-            function updateValue(element, newValue) {
-                if (!element) return;
-                const currentValue = element.querySelector('.timer-value').textContent;
+            function updateOdometerCard(cardElement, newValue) {
+                if (!cardElement) return;
+                const numberElement = cardElement.querySelector('.odometer-number');
+                const currentValue = numberElement.textContent;
+
                 if (currentValue !== newValue) {
-                    const currentEl = element.querySelector('.timer-value');
-                    const newEl = document.createElement('div');
-                    newEl.className = 'timer-value';
-                    newEl.textContent = newValue;
-
-                    element.appendChild(newEl);
-
-                    currentEl.style.transform = 'translateY(100%)';
-                    newEl.style.transform = 'translateY(0)';
-
-                    setTimeout(() => element.removeChild(currentEl), 500);
+                    // Create a new number element to animate
+                    const newNumberElement = document.createElement('div');
+                    newNumberElement.className = 'odometer-number';
+                    newNumberElement.textContent = newValue;
+                    
+                    // Position the new number above the current one
+                    newNumberElement.style.transform = 'translateY(-100%)';
+                    
+                    // Add the new number to the card
+                    cardElement.appendChild(newNumberElement);
+                    
+                    // Trigger reflow to ensure transition works
+                    void newNumberElement.offsetWidth;
+                    
+                    // Animate both old and new numbers
+                    numberElement.style.transform = 'translateY(100%)';
+                    newNumberElement.style.transform = 'translateY(0)';
+                    
+                    // Remove the old number after animation
+                    setTimeout(() => {
+                        cardElement.removeChild(numberElement);
+                    }, 500);
                 }
             }
 
@@ -292,7 +297,5 @@
             });
         });
     </script>
-
 </body>
-
 </html>
