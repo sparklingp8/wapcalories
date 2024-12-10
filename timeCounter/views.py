@@ -1,9 +1,14 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import redirect
+
 # Create your views here.
 import time
 from datetime import datetime, timedelta
 import json
+
+def tryy(request):
+    return HttpResponse("hi")
 
 def getAge(request):
     timers = [
@@ -37,5 +42,12 @@ def getAge(request):
         'timers': timers_sorted,
         'timers_json': json.dumps(timers_sorted)  # Pass JSON-serialized data to the template
     }
+    if request.method == 'POST':
+        print(request.body)
+        return JsonResponse({
+            'status': 'success', 
+            'message': 'Event created successfully',
+            'event_id': 1
+        })
 
     return render(request, 'timeCounter/time.html', context)
