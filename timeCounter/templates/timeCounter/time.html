@@ -114,9 +114,62 @@
             flex: 1 0 100%;
             text-align: center;
         }
+       .headingContainer {
+            display: flex;
+            align-items: center; /* Vertically center the content */
+            justify-content: center; /* Horizontally center the text */
+            /* Allow the anchor to position relative to the container */
+            height: 100px;
+            width: 98%;
+            max-width: 800px;
+        } 
+        .headingContainer a {
+            position: relative; /* Position the anchor */
+            left: 25%; /* Align it to the left edge */
+            font-weight: bold;
+            color: #00ffff;
+            font-size: 1em;
+            border-bottom: 1px solid #00ffff;
+        }
+        .headingContainer a {
+            position: relative; /* Position the anchor */
+            left: 25%; /* Align it to the left edge */
+            font-weight: bold;
+            color: #00ffff;
+            font-size: 1em;
+            border-bottom: 1px solid #00ffff;
+        }
+        #closeAddCountdown {
+            position: relative; /* Position the anchor */
+             /* Align it to the left edge */
+            left: 46%;
+            
+            font-size: 1em;
+           
+        }
+        #newCountdown {
+            /* width: 80px;
+            height: 70px; */
+            background-color: #111;
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 10px;
+        }
 
         /* Media Queries for Enhanced Responsiveness */
         @media screen and (max-width: 600px) {
+           
+            .headingContainer a {
+                position: relative; /* Position the anchor */
+                left: 5%; /* Align it to the left edge */
+                font-size: 0.8em;
+               
+            }
 
             .odometer-number {
                 font-size: 1.1em;
@@ -154,6 +207,12 @@
         }
 
         @media screen and (max-width: 400px) {
+            .headingContainer a {
+                position: relative; /* Position the anchor */
+                left: 5%; /* Align it to the left edge */
+                font-size: 0.8em;
+               
+            }
             .odometer-number {
                 font-size: 1.1em;
 
@@ -191,14 +250,24 @@
             display: none;
             /* Hides the element */
         }
+
+
+       
+
+    
     </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"  crossorigin="anonymous"></script>
+
 </head>
 
 <body>
-    <p
-        style="margin-bottom: 0px; color: Red;font-weight: bold;font-size: 26px;text-shadow: 0 0 15px rgba(255, 98, 0, 0.8), 0 0 30px rgba(255, 102, 0, 0.6);">
-        Time is RUNNING...!</p> <!-- JSON Data for timers -->
-    {% include "timeCounter/addNewEvent.html" %}
+    <div class="headingContainer">
+        <p style="margin-bottom: 0px; color: Red;font-weight: bold;font-size: 26px;text-shadow: 0 0 15px rgba(255, 98, 0, 0.8), 0 0 30px rgba(255, 102, 0, 0.6);">
+        Time is RUNNING...!</p> 
+        <a id="addEventLink" href="#"><i class='fas fa-hourglass-half' style='font-size:1em'></i><i class='fas fa-plus' style='font-size:1em'></i></a>
+        
+      </div>
+    <!-- JSON Data for timers -->
     {% for timer in timers %}
     <div class="countdown-container">
         <div class="event-title">{{ timer.event_name }}</div>
@@ -233,6 +302,7 @@
         </div>
     </div>
     {% endfor %}
+    {% include "timeCounter/addNewCountdown.html" %}
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
