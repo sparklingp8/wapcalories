@@ -2,13 +2,12 @@ from django.db import models
 
 # Create your models here.
 class Event(models.Model):
-    event_name = models.CharField(max_length=255)
-    target_time = models.DateTimeField()
-
+    creator_id = models.CharField(max_length=255)
+    data = models.JSONField(default=dict)
+    
     def __str__(self):
-        return f"{self.event_name} - {self.target_time}"
-
+        return f"Event for Creator {self.creator_id}, Countdowns List: {self.data["events"]}"
+    
     class Meta:
         verbose_name = 'Event'
         verbose_name_plural = 'Events'
-        ordering = ['target_time']
