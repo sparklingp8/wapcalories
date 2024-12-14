@@ -13,7 +13,6 @@ def addUser(userID):
 
 
 def user_countdown(request, userID):
-    print(userID)
     user_id = userID#"ptk"
     user_data = Event.objects.filter(creator_id = user_id).first()
     #print(creator_data, "dataaaa")
@@ -38,13 +37,7 @@ def user_countdown(request, userID):
     else:
         return HttpResponse(f"{userID}: doesn't exisits in Database, New user adding page coming soon .....")
         user_data = addUser(userID)
-        # user_data =  Event(creator_id=user_id, data={'events':[]})
-        # user_data.data["events"].append( {
-        #                     'event_name': 'Life',
-        #                     'target_time': '2067-02-07 23:56:00'
-        #                 })
-        # user_data.save()
-        # print("new user with new data added ")
+        
     print(Event.objects.all(), all)
     timers = user_data.data["events"]
     # Sort the timers list by 'target_time' after converting the string to a datetime object
@@ -62,36 +55,7 @@ def tryy(request):
     return HttpResponse("hi")
 
 def getAge(request):
-    event = Event(  creator_id="ptk", 
-                    data={
-                        "events": [
-                            {
-                            'event_name': 'Dreams',
-                            'target_time': '2027-03-07 11:46:46'
-                        },
-                        {
-                            'event_name': 'Mid',
-                            'target_time': '2040-02-07 23:56:00'
-                        },
-                        {
-                            'event_name': 'Life',
-                            'target_time': '2067-02-07 23:56:00'
-                        },
-                        {
-                            'event_name': 'Python Master',
-                            'target_time': '2025-02-26 23:58:02'
-                        },
-                        {
-                            'event_name': 'USA',
-                            'target_time': '2026-07-04 00:04:08'
-                        },
-                        ]
-                    }
-                )
-       
-
-
-# event.save()
+    # event.save()
     timers = [
         {
             'event_name': 'Dreams',
@@ -123,6 +87,7 @@ def getAge(request):
         'timers': timers_sorted,
         'timers_json': json.dumps(timers_sorted)  # Pass JSON-serialized data to the template
     }
+
     if request.method == 'POST':
         print(request.body)
         return JsonResponse({

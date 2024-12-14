@@ -5,6 +5,6 @@ from . import views
 
 urlpatterns = [
     path("age", views.getAge, name="get_age"),
-    path("add/<str:userID>", views.user_countdown, name="user_countdowns" ),
+    path("<str:userID>", views.user_countdown, name="user_countdowns" ),
     path("try",views.tryy, name="tryy")
 ]
