@@ -105,6 +105,7 @@
             flex: 1 0 100%;
             text-align: center;
             margin-bottom: 15px;
+            max-width: 800px;
         }
 
         .times-up {
@@ -282,7 +283,14 @@
     <!-- JSON Data for timers -->
     {% for timer in timers %}
     <div class="countdown-container">
-        <div class="event-title">{{ timer.event_name }}</div>
+        <div class="event-title" style="position: relative; overflow: hidden;">
+            {{ timer.event_name }}
+            <span style="position: absolute; right: 0; top: 0; display: inline-block;"> 
+                <a id="w" href="/{{ timer.event_name }}">
+                  <i class='fas fa-times' style='font-size:0.7em;color: red;'></i>
+                </a>
+              </span>
+            </div>
         <div id="countdown-{{ forloop.counter }}" class="countdown-grid">
             <div class="timer-segment">
                 <div id="days-{{ forloop.counter }}" class="odometer-card-days">
