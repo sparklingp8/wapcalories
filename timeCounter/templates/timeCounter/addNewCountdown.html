@@ -67,7 +67,7 @@
         const eventName = document.getElementById('eventName').value;
         const eventDateTime = document.getElementById('eventDateTime').value;
 
-        fetch('/time/age', {
+        fetch('/time/addCountdown/{{userID}}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -77,16 +77,18 @@
                 event_name: eventName,
                 target_time: eventDateTime
             })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    document.getElementById('eventForm').classList.add('hidden');
-                    document.getElementById('addEventBtn').classList.remove('hidden');
-                    document.getElementById('eventName').value = '';
-                    document.getElementById('eventDateTime').value = '';
-                }
-            });
+        });
+        event.preventDefault(); // Prevent default anchor behavior
+
+        // Scroll to the button smoothly
+        window.scrollTo({
+            top: 0, // Scroll to the top of the page
+            behavior: 'smooth' // Optional: Adds smooth scrolling animation
+        });
+        document.getElementById('eventForm').classList.add('hidden');
+        document.getElementById('addEventBtn').classList.remove('hidden');
+        location.reload()
+
     });
 </script>
 
