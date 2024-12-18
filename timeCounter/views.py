@@ -12,12 +12,13 @@ def addUser(request,userID):
     return "hi"
 
 def user_add_countdown(request, userID):
-    
+    message = "yy"
+    print("asfasfas")
     if request.method == 'POST':
         try:
-            byte_data= request.body            
-            d = json.loads(byte_data.decode('utf-8'))            
-            iso_time = d['target_time']
+            # byte_data= request.body            
+            # d = json.loads(byte_data.decode('utf-8'))            
+            iso_time = request.POST.get('target_time')
             
             formatted_time = datetime.strptime(iso_time, "%Y-%m-%dT%H:%M").strftime("%Y-%m-%d %H:%M:%S")
 
@@ -34,12 +35,13 @@ def user_add_countdown(request, userID):
             # Check conditions
             if given_time < current_time:
                 print("The given time is in the past.")
+                message = "ERROR !! The given time is in the past."
             elif given_time > future_limit:
                 print("The given time is more than 120 years in the future.")
+                message  = "ERROR !! The given time is more than 120 years in the future."
             else:
-                print("The given time is valid.")
-                print(d)
-                eve_name = d['event_name']
+                
+                eve_name = request.POST.get('event_name')
                 eve_time = formatted_time
                 user_id = userID#"ptk"
                 user_data = Event.objects.filter(creator_id = user_id).first()
@@ -57,8 +59,10 @@ def user_add_countdown(request, userID):
                         })
                         user_data.save()
                         print(eve_name, "added to database")
+                        message = f"Success: *{eve_name}* Countdown added successfully"
                     else:
                         print(eve_name, "already exists")
+                        message = f"ERROR !!  *{eve_name}* Countdown already exists"
                 else:
                     return HttpResponse(f"{userID}: doesn't exisits in Database, New user adding page coming soon .....")
                     user_data = addUser(userID)
@@ -67,23 +71,30 @@ def user_add_countdown(request, userID):
             
         except:
             print("adding event went something woeing")
-            return redirect("user_countdowns", userID=userID)
-    return redirect("user_countdowns", userID=userID)
+            message = f"ERROR !! adding *{eve_name}* event went something woeing"
+            return redirect("user_countdowns", userID=userID, message=message)
+    return redirect("user_countdowns", userID=userID, message=message)
+     
 
 
 
 def user_delete_countdown(request,userID,count_name):
     user_id = userID#"ptk"
+    message = "ERROR !! something went wrong while deleting "
     user_data = Event.objects.filter(creator_id = user_id).first()
-    if user_data:
-        events = [event for event in user_data.data['events'] if event['event_name'] != count_name]        
-        user_data.data['events'] = events
-        user_data.save()
-        return redirect("user_countdowns", userID=userID)
-    else:
-        return redirect("user_countdowns", userID=userID)
+    try: 
+        if user_data:
+            events = [event for event in user_data.data['events'] if event['event_name'] != count_name]        
+            user_data.data['events'] = events
+            user_data.save()
+            message = f"Success: *{count_name}* countdown deleted"        
+            return redirect("user_countdowns", userID=userID, message =  message)
+        else:
+            return redirect("user_countdowns", userID=userID, message=message)
+    except:
+        return redirect("user_countdowns", userID=userID,message=message)
 
-def user_countdown(request, userID):
+def user_countdown(request, userID, message=""):
     user_id = userID#"ptk"
     user_data = Event.objects.filter(creator_id = user_id).first()
     
@@ -97,7 +108,8 @@ def user_countdown(request, userID):
         context = {
             'timers': timers_sorted,
             'timers_json': json.dumps(timers_sorted),  # Pass JSON-serialized data to the template
-            'userID': userID
+            'userID': userID,
+            'message': message
         }
         return render(request, 'timeCounter/time.html', context)
     else:
@@ -142,7 +154,8 @@ def getAge(request):
     context = {
         'timers': timers_sorted,
         'timers_json': json.dumps(timers_sorted),
-          'userID': 'age'  # Pass JSON-serialized data to the template
+          'userID': 'age',  # Pass JSON-serialized data to the template
+          'message': "",
     }    
 
     return render(request, 'timeCounter/time.html', context)
