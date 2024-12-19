@@ -277,7 +277,7 @@
         <div class="event-title" style="position: relative; overflow: hidden;">
             {{ timer.event_name }}
             <span style="position: absolute; right: 0; top: 0; display: inline-block;"> 
-                <a id="w" href="delCountdown/{{ userID }}/{{ timer.event_name }}" onclick='return confirm("Delete *{{ timer.event_name }}* count down?");'>
+                <a id="w" href="delCountdown/{{ userID }}/{{ timer.event_name }}" onclick='return enterPIN()'>
                   <i class='fas fa-times' style='font-size:0.7em;color: red;'></i>
                 </a>
               </span>
@@ -397,6 +397,10 @@
         if("{{message}}" !== ""){
             alert("{{message}} ")
             window.location.href = "/time/countdowns/{{userID}}";
+        }
+
+        function enterPIN(){
+            console.log("Enter Pin")
         }
         
     </script>
