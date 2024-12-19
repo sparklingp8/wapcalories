@@ -13,12 +13,13 @@ def addUser(request,userID):
 
 def user_add_countdown(request, userID):
     message = "yy"
-    print("asfasfas")
+    
     if request.method == 'POST':
         try:
             # byte_data= request.body            
             # d = json.loads(byte_data.decode('utf-8'))            
             iso_time = request.POST.get('target_time')
+            user_pin = request.POST.get('user_pin')
             
             formatted_time = datetime.strptime(iso_time, "%Y-%m-%dT%H:%M").strftime("%Y-%m-%d %H:%M:%S")
 
@@ -45,27 +46,31 @@ def user_add_countdown(request, userID):
                 eve_time = formatted_time
                 user_id = userID#"ptk"
                 user_data = Event.objects.filter(creator_id = user_id).first()
-                if user_data:
-                    eves = set()
-                    if len(user_data.data['events']) > 10:
-                        return HttpResponse("many Events")
-                    for e in user_data.data['events']:
-                        eves.add(e['event_name'])
-                
-                    if eve_name not in eves:
-                        user_data.data["events"].append({
-                            'event_name': eve_name,
-                            'target_time': eve_time
-                        })
-                        user_data.save()
-                        print(eve_name, "added to database")
-                        message = f"Success: *{eve_name}* Countdown added successfully"
+                if user_data.creator_pin ==  int(user_pin):
+                    if user_data:
+                        eves = set()
+                        if len(user_data.data['events']) > 10:
+                            return HttpResponse("many Events")
+                        for e in user_data.data['events']:
+                            eves.add(e['event_name'])
+                    
+                        if eve_name not in eves:
+                            user_data.data["events"].append({
+                                'event_name': eve_name,
+                                'target_time': eve_time
+                            })
+                            user_data.save()
+                            print(eve_name, "added to database")
+                            message = f"Success: *{eve_name}* Countdown added successfully"
+                        else:
+                            print(eve_name, "already exists")
+                            message = f"ERROR !!  *{eve_name}* Countdown already exists"
                     else:
-                        print(eve_name, "already exists")
-                        message = f"ERROR !!  *{eve_name}* Countdown already exists"
+                        return HttpResponse(f"{userID}: doesn't exisits in Database, New user adding page coming soon .....")
+                        user_data = addUser(userID)
                 else:
-                    return HttpResponse(f"{userID}: doesn't exisits in Database, New user adding page coming soon .....")
-                    user_data = addUser(userID)
+                    print(eve_name, "user pin wrong exists")
+                    message = f"ERROR !!  *WRONG* Countdown already exists"
 
             # Update the dictionary
             
