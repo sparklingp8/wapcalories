@@ -7,6 +7,7 @@ import time
 from datetime import datetime, timedelta
 import json
 import random
+import hashlib
 
 def addUser(request,userID):
     return "hi"
@@ -20,6 +21,13 @@ def user_add_countdown(request, userID):
             # d = json.loads(byte_data.decode('utf-8'))            
             iso_time = request.POST.get('target_time')
             user_pin = request.POST.get('user_pin')
+            try:
+                user_pin = int(user_pin)
+            except :
+                print("PIN should contain only Numbers")
+                message = f"ERROR !! PIN should contain only Numbers"
+                return redirect("user_countdowns", userID=userID, message=message)      
+            
             
             formatted_time = datetime.strptime(iso_time, "%Y-%m-%dT%H:%M").strftime("%Y-%m-%d %H:%M:%S")
 
@@ -46,7 +54,7 @@ def user_add_countdown(request, userID):
                 eve_time = formatted_time
                 user_id = userID#"ptk"
                 user_data = Event.objects.filter(creator_id = user_id).first()
-                if user_data.creator_pin ==  int(user_pin):
+                if user_data.creator_pin == user_pin:
                     if user_data:
                         eves = set()
                         if len(user_data.data['events']) > 10:
@@ -69,14 +77,14 @@ def user_add_countdown(request, userID):
                         return HttpResponse(f"{userID}: doesn't exisits in Database, New user adding page coming soon .....")
                         user_data = addUser(userID)
                 else:
-                    print(eve_name, "user pin wrong exists")
-                    message = f"ERROR !!  *WRONG* Countdown already exists"
+                    print(eve_name, "user pin wrong ")
+                    message = f"ERROR !!  *WRONG PIN* try again"
 
             # Update the dictionary
             
         except:
             print("adding event went something woeing")
-            message = f"ERROR !! adding *{eve_name}* event went something woeing"
+            message = f"ERROR !! adding *{request.POST.get('event_name')}* event went something woeing"
             return redirect("user_countdowns", userID=userID, message=message)
     return redirect("user_countdowns", userID=userID, message=message)
      
@@ -108,13 +116,14 @@ def user_countdown(request, userID, message=""):
         timers = user_data.data["events"]
         # Sort the timers list by 'target_time' after converting the string to a datetime object
         timers_sorted = sorted(timers, key=lambda x: datetime.strptime(x['target_time'], '%Y-%m-%d %H:%M:%S'))
-
+        hashed_value = hashlib.sha256(str(user_data.creator_pin).encode()).hexdigest()
         # Prepare the context
         context = {
             'timers': timers_sorted,
             'timers_json': json.dumps(timers_sorted),  # Pass JSON-serialized data to the template
             'userID': userID,
-            'message': message
+            'message': message,
+            "hashed_value" :hashed_value,
         }
         return render(request, 'timeCounter/time.html', context)
     else:
@@ -154,6 +163,7 @@ def getAge(request):
     
     # Sort the timers list by 'target_time' after converting the string to a datetime object
     timers_sorted = sorted(timers, key=lambda x: datetime.strptime(x['target_time'], '%Y-%m-%d %H:%M:%S'))
+    hashed_value = hashlib.sha256(str(0).encode()).hexdigest()
 
     # Prepare the context
     context = {
@@ -161,6 +171,7 @@ def getAge(request):
         'timers_json': json.dumps(timers_sorted),
           'userID': 'age',  # Pass JSON-serialized data to the template
           'message': "",
+           "hashed_value" :hashed_value,
     }    
 
     return render(request, 'timeCounter/time.html', context)
