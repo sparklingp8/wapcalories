@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add User</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #0a0a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0 5vw;
+            gap: 2vh;
+            color: #fff;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .responsive-container {
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 0 2vw;
+            }
+            .responsive-container {
+                padding: 15px;
+            }
+            .btn {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="responsive-container">
+        <div id="newCountdown">
+            <button id="addEventBtn" class="btn w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+                style="background-color: #0afefeb6; border: 2px solid #111; font-weight: bold; text-shadow: 0 0 15px white, 0 0 30px white;">
+                Register New User
+            </button>
+            <form id="eventForm" class="hidden mt-4" method="post" action="/time/addCountdown/addNewUser">
+                {% csrf_token %}
+                <div style="position: relative;padding-bottom: 10px;text-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6);">
+                    <span style="font-weight: bold;color:#00ffff;">Register New User</span>
+                    <a id="closeAddCountdown" href="#" style="position: absolute; top: 0; right: 0;">
+                        <i class='fas fa-times' style='font-size:1.5em; color: red;'>x</i>
+                    </a>
+                </div>
+                <div class="mb-4">
+                    <label for="userName" class="block font-bold text-white mb-2">New User Name</label>
+                    <input type="text" id="userName" name="euser_name" maxlength="25"
+                        class="w-full text-black px-3 py-2 border rounded-lg" placeholder="Enter New User name" required>
+                </div>
+                <div class="mb-4">
+                    <label for="eventName" class="block font-bold text-white mb-2">First Countdown Name</label>
+                    <input type="text" id="eventName" name="event_name" maxlength="25"
+                        class="w-full text-black px-3 py-2 border rounded-lg" placeholder="Enter event name" required>
+                </div>
+                <div class="mb-4">
+                    <label for="eventDateTime" class="block font-bold text-white mb-2">First Countdown Date and Time</label>
+                    <input type="datetime-local" id="eventDateTime" name="target_time"
+                        class="w-full text-black px-3 py-2 border rounded-lg" required>
+                </div>
+                <div class="mb-4">
+                    <label for="userPin" class="block font-bold text-white mb-2">Secret PIN</label>
+                    <input type="password" id="userPIN" name="user_pin"
+                        class="w-full text-black px-3 py-2 border rounded-lg" required>
+                </div>
+                <div class="mb-4">
+                    <label for="confirmUserPin" class="block font-bold text-white mb-2">Confirm PIN</label>
+                    <input type="password" id="confirmUserPin" name="confirm_user_pin"
+                        class="w-full text-black px-3 py-2 border rounded-lg" required>
+                </div>
+                <button type="submit" id="saveEventBtn" class="btn w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+                    style="background-color: #0afefeb6; border: 2px solid #111; font-weight: bold; text-shadow: 0 0 15px white, 0 0 30px white;">
+                    Save New Countdown
+                </button>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('eventForm').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        document.getElementById('addEventBtn').addEventListener('click', function () {
+            document.getElementById('eventForm').classList.remove('hidden');
+            this.classList.add('hidden');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        });
+        document.getElementById('closeAddCountdown').addEventListener('click', function (event) {
+            event.preventDefault();
+            document.getElementById('eventForm').classList.add('hidden');
+            document.getElementById('addEventBtn').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>

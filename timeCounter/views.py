@@ -9,8 +9,8 @@ import json
 import random
 import hashlib
 
-def addUser(request,userID):
-    return "hi"
+def add_new_user(request,userID=None):
+    return render(request, 'timeCounter/addNewUser.html')
 
 def user_add_countdown(request, userID):
     message = "yy"
@@ -116,6 +116,10 @@ def user_countdown(request, userID, message=""):
         timers = user_data.data["events"]
         # Sort the timers list by 'target_time' after converting the string to a datetime object
         timers_sorted = sorted(timers, key=lambda x: datetime.strptime(x['target_time'], '%Y-%m-%d %H:%M:%S'))
+        for detail in timers_sorted:
+            t = datetime.strptime(detail['target_time'], '%Y-%m-%d %H:%M:%S')
+            detail['event_date'] = t.strftime('%d/%m/%Y')
+       
         hashed_value = hashlib.sha256(str(user_data.creator_pin).encode()).hexdigest()
         # Prepare the context
         context = {
@@ -125,6 +129,8 @@ def user_countdown(request, userID, message=""):
             'message': message,
             "hashed_value" :hashed_value,
         }
+        
+
         return render(request, 'timeCounter/time.html', context)
     else:
         return HttpResponse("Wrong URL")
