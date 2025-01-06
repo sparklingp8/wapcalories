@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +22,7 @@
             text-align: center;
             box-sizing: border-box;
         }
+
         .responsive-container {
             width: 100%;
             max-width: 600px;
@@ -29,13 +31,16 @@
             border-radius: 10px;
             padding: 10px;
         }
+
         @media (max-width: 768px) {
             body {
                 padding: 0 2vw;
             }
+
             .responsive-container {
                 padding: 15px;
             }
+
             .btn {
                 padding: 10px;
                 font-size: 0.9em;
@@ -43,16 +48,27 @@
         }
     </style>
 </head>
+
 <body>
     <div class="responsive-container">
         <div id="newCountdown">
+
+            <div
+                style="position: relative;padding-bottom: 10px;text-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6);">
+                <p
+                    style="margin-bottom: 0px; color: Red;font-weight: bold;font-size: 26px;text-shadow: 0 0 15px rgba(255, 98, 0, 0.8), 0 0 30px rgba(255, 102, 0, 0.6);">
+                    Time is RUNNING...!</p>
+
+            </div>
             <button id="addEventBtn" class="btn w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
                 style="background-color: #0afefeb6; border: 2px solid #111; font-weight: bold; text-shadow: 0 0 15px white, 0 0 30px white;">
                 Register New User
             </button>
-            <form id="eventForm" class="hidden mt-4" method="post" action="/time/addCountdown/addNewUser">
+
+            <form id="eventForm" class="hidden mt-4"  method="post" action="/time/addNewUser">
                 {% csrf_token %}
-                <div style="position: relative;padding-bottom: 10px;text-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6);">
+                <div
+                    style="position: relative;padding-bottom: 10px;text-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6);">
                     <span style="font-weight: bold;color:#00ffff;">Register New User</span>
                     <a id="closeAddCountdown" href="#" style="position: absolute; top: 0; right: 0;">
                         <i class='fas fa-times' style='font-size:1.5em; color: red;'>x</i>
@@ -61,7 +77,8 @@
                 <div class="mb-4">
                     <label for="userName" class="block font-bold text-white mb-2">New User Name</label>
                     <input type="text" id="userName" name="euser_name" maxlength="25"
-                        class="w-full text-black px-3 py-2 border rounded-lg" placeholder="Enter New User name" required>
+                        class="w-full text-black px-3 py-2 border rounded-lg" placeholder="Enter New User name"
+                        required>
                 </div>
                 <div class="mb-4">
                     <label for="eventName" class="block font-bold text-white mb-2">First Countdown Name</label>
@@ -69,23 +86,25 @@
                         class="w-full text-black px-3 py-2 border rounded-lg" placeholder="Enter event name" required>
                 </div>
                 <div class="mb-4">
-                    <label for="eventDateTime" class="block font-bold text-white mb-2">First Countdown Date and Time</label>
-                    <input type="datetime-local" id="eventDateTime" name="target_time"
+                    <label for="eventDateTime" class="block font-bold text-white mb-2">First Countdown Date and
+                        Time</label>
+                    <input type="datetime-local" id="eventDateTime" name="target_time" placeholder="choose date & time"
                         class="w-full text-black px-3 py-2 border rounded-lg" required>
                 </div>
                 <div class="mb-4">
-                    <label for="userPin" class="block font-bold text-white mb-2">Secret PIN</label>
-                    <input type="password" id="userPIN" name="user_pin"
+                    <label for="userPin" class="block font-bold text-white mb-2">Secret PIN (Only Digits)</label>
+                    <input type="password" id="userPIN" name="user_pin" placeholder="Only Digits Allowed"
                         class="w-full text-black px-3 py-2 border rounded-lg" required>
                 </div>
                 <div class="mb-4">
                     <label for="confirmUserPin" class="block font-bold text-white mb-2">Confirm PIN</label>
-                    <input type="password" id="confirmUserPin" name="confirm_user_pin"
+                    <input type="password" id="confirmUserPin" name="confirm_user_pin" placeholder="Only Digits Allowed"
                         class="w-full text-black px-3 py-2 border rounded-lg" required>
                 </div>
-                <button type="submit" id="saveEventBtn" class="btn w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+                <button type="submit" id="saveEventBtn"
+                    class="btn w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
                     style="background-color: #0afefeb6; border: 2px solid #111; font-weight: bold; text-shadow: 0 0 15px white, 0 0 30px white;">
-                    Save New Countdown
+                    REGISTER
                 </button>
             </form>
         </div>
@@ -105,6 +124,146 @@
             document.getElementById('eventForm').classList.add('hidden');
             document.getElementById('addEventBtn').classList.remove('hidden');
         });
+
+        // Add this JavaScript to your template or static file
+        document.addEventListener('DOMContentLoaded', function () {
+            const userNameInput = document.getElementById('userName');
+            const form = document.getElementById('eventForm');
+            let usernameTimeout;
+
+            userNameInput.addEventListener('input', function () {
+                // Clear any existing timeout
+                clearTimeout(usernameTimeout);
+
+                // Remove any existing message
+                const existingMessage = document.querySelector('.username-message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+
+                // Set a new timeout to check username after user stops typing
+                usernameTimeout = setTimeout(() => {
+                    const username = this.value.trim();
+                    if (username) {
+                        checkUsername(username);
+                    }
+                }, 500);
+            });
+
+            async function checkUsername(username) {
+                try {
+                    const response = await fetch(`/time/check-username/${username}`);
+                    const data = await response.json();
+
+                    // Create message element
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'username-message mt-2';
+
+                    if (data.exists) {
+                        messageDiv.textContent = 'This username is already taken';
+                        messageDiv.style.color = '#ff4444';
+                        userNameInput.setCustomValidity('Username already taken');
+                    } else {
+                        messageDiv.textContent = 'Username is available';
+                        messageDiv.style.color = '#00ff00';
+                        userNameInput.setCustomValidity('');
+                    }
+
+                    // Insert message after the username input
+                    userNameInput.parentNode.appendChild(messageDiv);
+                } catch (error) {
+                    console.error('Error checking username:', error);
+                }
+            }
+
+            // Add form submit handler to double-check username before submission
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const username = userNameInput.value.trim();
+                try {
+                    const response = await fetch(`/time/check-username/${username}`);
+                    const data = await response.json();
+
+                    if (data.exists) {
+                        alert('This username is already taken. Please choose another.');
+                        return;
+                    }
+                    const form = document.getElementById('eventForm');
+                    const userPinInput = document.getElementById('userPIN');
+                    const confirmPinInput = document.getElementById('confirmUserPin');
+
+                    const pin = userPinInput.value;
+                    const confirmPin = confirmPinInput.value;
+
+                    // Remove any existing message
+                    const existingMessage = document.querySelector('.pin-message');
+                    if (existingMessage) {
+                        existingMessage.remove();
+                    }
+
+
+                    // Create message element
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'pin-message mt-2';
+                    if (!containsOnlyDigits(pin)) {
+                        messageDiv.textContent = 'PIN must contain only digits';
+                        messageDiv.style.color = '#ff4444';
+                        userPinInput.parentNode.appendChild(messageDiv);
+                    } else if (!containsOnlyDigits(confirmPin)) {
+                        messageDiv.textContent = 'Confirm PIN must contain only digits';
+                        messageDiv.style.color = '#ff4444';
+                        confirmPinInput.parentNode.appendChild(messageDiv);
+                    } else if (pin !== confirmPin) {
+                        messageDiv.textContent = 'PINs do not match. Please check and try again.';
+                        messageDiv.style.color = '#ff4444';
+                        confirmPinInput.parentNode.appendChild(messageDiv);
+                    } else if (pin === confirmPin) {
+                        // PINs match, submit the form
+                        this.submit()
+                       console.log("submit")
+                    } else {
+                        // PINs don't match, show error message
+                        messageDiv.textContent = 'PINs do not match. Please check and try again.';
+                        alert("PINs don't match")
+                        messageDiv.style.color = '#ff4444';
+                        // Insert message after the confirm PIN input
+                        confirmPinInput.parentNode.appendChild(messageDiv);
+                    }
+
+                    // If username is available, submit the form
+
+                } catch (error) {
+                    console.error('Error checking username:', error);
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+
+        const form = document.getElementById('eventForm');
+        const userPinInput = document.getElementById('userPIN');
+        const confirmPinInput = document.getElementById('confirmUserPin');
+
+        // Function to check if string contains only digits
+        function containsOnlyDigits(str) {
+            return /^\d+$/.test(str);
+        }
+
+        // Add input event listeners to restrict non-digit input
+        userPinInput.addEventListener('input', function (e) {
+            if (!containsOnlyDigits(this.value)) {
+                this.value = this.value.replace(/\D/g, ''); // Remove non-digits
+            }
+        });
+
+        confirmPinInput.addEventListener('input', function (e) {
+            if (!containsOnlyDigits(this.value)) {
+                this.value = this.value.replace(/\D/g, ''); // Remove non-digits
+            }
+        });
+
+
     </script>
 </body>
+
 </html>

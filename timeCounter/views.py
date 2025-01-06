@@ -9,8 +9,42 @@ import json
 import random
 import hashlib
 
-def add_new_user(request,userID=None):
-    return render(request, 'timeCounter/addNewUser.html')
+def check_username(request, username):
+    """AJAX endpoint to check if username exists"""
+    
+    exists = Event.objects.filter(creator_id=username).exists()
+    return JsonResponse({'exists': exists})
+
+def add_new_user(request):
+    if request.method == 'POST':
+        try:
+            print("request POST", request.POST)
+            username = request.POST.get('euser_name')
+            event_name = request.POST.get('event_name')
+            target_time = request.POST.get('target_time')
+            user_pin = request.POST.get('user_pin')
+            confirm_pin = request.POST.get('confirm_user_pin')
+        
+            # Check if user exists
+            if Event.objects.filter(creator_id=username).exists():
+                print("erririr exists")
+                return redirect('register')  # Redirect back to registration page
+
+            # Continue with user creation if username is unique
+            if user_pin != confirm_pin:
+                print("ping wrong")
+                return redirect('register')
+
+            # Create user and save other data
+            
+                
+            print( 'User registered successfully!')
+            return redirect('get_age')
+        except Exception as e:            
+            return HttpResponse("something went wrong while registering user")
+    else:
+        print("request get",request)
+        return render(request, 'timeCounter/addNewUser.html')
 
 def user_add_countdown(request, userID):
     message = "yy"
