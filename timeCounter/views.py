@@ -27,7 +27,7 @@ def add_new_user(request):
         
             # Check if user exists
             if Event.objects.filter(creator_id=username).exists():
-                print("erririr exists")
+                print("user exists")
                 return redirect('register')  # Redirect back to registration page
 
             # Continue with user creation if username is unique
@@ -37,11 +37,49 @@ def add_new_user(request):
 
             # Create user and save other data
             
-                
+            
+            
+            formatted_time = datetime.strptime(target_time, "%Y-%m-%dT%H:%M").strftime("%Y-%m-%d %H:%M:%S")
+
+            formatted_time = formatted_time[:-2]+str(random.randint(10, 60))
+
+            given_time = datetime.strptime(formatted_time, "%Y-%m-%d %H:%M:%S")
+
+            # Get the current time
+            current_time = datetime.now()
+
+            # Calculate the 120-year future limit
+            future_limit = current_time + timedelta(days=120 * 365.25)
+
+            # # Check conditions
+            # if given_time < current_time:
+            #     print("The given time is in the past.")
+            #     message = "ERROR !! The given time is in the past."
+            #     raise ValueError
+            # elif given_time > future_limit:
+            #     print("The given time is more than 120 years in the future.")
+            #     message  = "ERROR !! The given time is more than 120 years in the future."
+            #     raise ValueError
+            # else:                
+            eve_name = event_name
+            eve_time = formatted_time
+            new_user = Event.objects.create(creator_id=username, creator_pin=int(user_pin))
+            new_user.data["events"]=[{
+                'event_name': eve_name,
+                'target_time': eve_time
+            }]
+            new_user.save()
+            print(eve_name, "new useradded to database")
+            message = f"Success: *{eve_name}* Countdown added successfully"
             print( 'User registered successfully!')
-            return redirect('get_age')
-        except Exception as e:            
+            return redirect("user_countdowns", userID=username, message=message)           
+                
+            
+        # except ValueError as v:
+        #     return redirect('register')#redirect("user_countdowns", userID=username, message=message)
+        except Exception as e:
             return HttpResponse("something went wrong while registering user")
+       
     else:
         print("request get",request)
         return render(request, 'timeCounter/addNewUser.html')
@@ -145,27 +183,31 @@ def user_countdown(request, userID, message=""):
     user_id = userID#"ptk"
     user_data = Event.objects.filter(creator_id = user_id).first()
     
-    if user_data:    
+    if user_data :    
         #print(Event.objects.all(), all)
-        timers = user_data.data["events"]
-        # Sort the timers list by 'target_time' after converting the string to a datetime object
-        timers_sorted = sorted(timers, key=lambda x: datetime.strptime(x['target_time'], '%Y-%m-%d %H:%M:%S'))
-        for detail in timers_sorted:
-            t = datetime.strptime(detail['target_time'], '%Y-%m-%d %H:%M:%S')
-            detail['event_date'] = t.strftime('%d/%m/%Y')
-       
-        hashed_value = hashlib.sha256(str(user_data.creator_pin).encode()).hexdigest()
-        # Prepare the context
-        context = {
-            'timers': timers_sorted,
-            'timers_json': json.dumps(timers_sorted),  # Pass JSON-serialized data to the template
-            'userID': userID,
-            'message': message,
-            "hashed_value" :hashed_value,
-        }
-        
+        if  user_data.data.get("events"):
 
-        return render(request, 'timeCounter/time.html', context)
+            timers = user_data.data["events"]
+            # Sort the timers list by 'target_time' after converting the string to a datetime object
+            timers_sorted = sorted(timers, key=lambda x: datetime.strptime(x['target_time'], '%Y-%m-%d %H:%M:%S'))
+            for detail in timers_sorted:
+                t = datetime.strptime(detail['target_time'], '%Y-%m-%d %H:%M:%S')
+                detail['event_date'] = t.strftime('%d/%m/%Y')
+        
+            hashed_value = hashlib.sha256(str(user_data.creator_pin).encode()).hexdigest()
+            # Prepare the context
+            context = {
+                'timers': timers_sorted,
+                'timers_json': json.dumps(timers_sorted),  # Pass JSON-serialized data to the template
+                'userID': userID,
+                'message': message,
+                "hashed_value" :hashed_value,
+            }      
+
+            return render(request, 'timeCounter/time.html', context)
+        else:
+            return redirect("user_countdowns", userID=user_id, message=message)
+
     else:
         return HttpResponse("Wrong URL")
     

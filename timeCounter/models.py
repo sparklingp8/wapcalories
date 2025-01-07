@@ -7,7 +7,7 @@ class Event(models.Model):
     creator_pin =  models.IntegerField(default=0, null=False, blank=False) 
     
     def __str__(self):
-        return f"Event for Creator {self.creator_id}, Countdowns List: {self.data["events"]}"
+        return f"Event for Creator {self.creator_id}, Countdowns List: {self.data}"
     
     class Meta:
         verbose_name = 'Event'
