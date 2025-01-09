@@ -18,21 +18,22 @@ def check_username(request, username):
 def add_new_user(request):
     if request.method == 'POST':
         try:
-            print("request POST", request.POST)
+           
             username = request.POST.get('euser_name')
             event_name = request.POST.get('event_name')
             target_time = request.POST.get('target_time')
             user_pin = request.POST.get('user_pin')
             confirm_pin = request.POST.get('confirm_user_pin')
-        
+            if len(Event.objects.all()) > 100:
+                return HttpResponse("Database Full Wait Till Devloper Fix")
             # Check if user exists
             if Event.objects.filter(creator_id=username).exists():
-                print("user exists")
+               
                 return redirect('register')  # Redirect back to registration page
 
             # Continue with user creation if username is unique
             if user_pin != confirm_pin:
-                print("ping wrong")
+                
                 return redirect('register')
 
             # Create user and save other data
@@ -69,19 +70,20 @@ def add_new_user(request):
                 'target_time': eve_time
             }]
             new_user.save()
-            print(eve_name, "new useradded to database")
-            message = f"Success: *{eve_name}* Countdown added successfully"
-            print( 'User registered successfully!')
-            return redirect("user_countdowns", userID=username, message=message)           
+           
+            message = f"Success: First *{eve_name}* Countdown added successfully"
+           
+            return redirect("user_countdowns", userID=username, message=message)     
                 
             
         # except ValueError as v:
         #     return redirect('register')#redirect("user_countdowns", userID=username, message=message)
         except Exception as e:
+            print(e)
             return HttpResponse("something went wrong while registering user")
        
     else:
-        print("request get",request)
+        
         return render(request, 'timeCounter/addNewUser.html')
 
 def user_add_countdown(request, userID):
@@ -96,7 +98,7 @@ def user_add_countdown(request, userID):
             try:
                 user_pin = int(user_pin)
             except :
-                print("PIN should contain only Numbers")
+                
                 message = f"ERROR !! PIN should contain only Numbers"
                 return redirect("user_countdowns", userID=userID, message=message)      
             
@@ -115,10 +117,10 @@ def user_add_countdown(request, userID):
 
             # Check conditions
             if given_time < current_time:
-                print("The given time is in the past.")
+                
                 message = "ERROR !! The given time is in the past."
             elif given_time > future_limit:
-                print("The given time is more than 120 years in the future.")
+                
                 message  = "ERROR !! The given time is more than 120 years in the future."
             else:
                 
@@ -140,22 +142,22 @@ def user_add_countdown(request, userID):
                                 'target_time': eve_time
                             })
                             user_data.save()
-                            print(eve_name, "added to database")
+                            
                             message = f"Success: *{eve_name}* Countdown added successfully"
                         else:
-                            print(eve_name, "already exists")
+                            
                             message = f"ERROR !!  *{eve_name}* Countdown already exists"
                     else:
                         return HttpResponse(f"{userID}: doesn't exisits in Database, New user adding page coming soon .....")
                         user_data = addUser(userID)
                 else:
-                    print(eve_name, "user pin wrong ")
+                  
                     message = f"ERROR !!  *WRONG PIN* try again"
 
             # Update the dictionary
             
         except:
-            print("adding event went something woeing")
+            
             message = f"ERROR !! adding *{request.POST.get('event_name')}* event went something woeing"
             return redirect("user_countdowns", userID=userID, message=message)
     return redirect("user_countdowns", userID=userID, message=message)
@@ -184,10 +186,11 @@ def user_countdown(request, userID, message=""):
     user_data = Event.objects.filter(creator_id = user_id).first()
     
     if user_data :    
-        #print(Event.objects.all(), all)
-        if  user_data.data.get("events"):
-
+        
+        if  user_data.data.get("events") and len(user_data.data["events"])>0 :
+           
             timers = user_data.data["events"]
+
             # Sort the timers list by 'target_time' after converting the string to a datetime object
             timers_sorted = sorted(timers, key=lambda x: datetime.strptime(x['target_time'], '%Y-%m-%d %H:%M:%S'))
             for detail in timers_sorted:
@@ -206,7 +209,16 @@ def user_countdown(request, userID, message=""):
 
             return render(request, 'timeCounter/time.html', context)
         else:
-            return redirect("user_countdowns", userID=user_id, message=message)
+            hashed_value = hashlib.sha256(str(user_data.creator_pin).encode()).hexdigest()
+
+            context = {
+                'timers': "",
+                'timers_json': "",  # Pass JSON-serialized data to the template
+                'userID': userID,
+                'message': message,
+                "hashed_value" :hashed_value,
+            }      
+            return render(request, 'timeCounter/time.html', context)
 
     else:
         return HttpResponse("Wrong URL")
