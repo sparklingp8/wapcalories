@@ -12,7 +12,8 @@ import hashlib
 def check_username(request, username):
     """AJAX endpoint to check if username exists"""
     
-    exists = Event.objects.filter(creator_id=username).exists()
+    exists = Event.objects.filter(creator_id=username.lower()).exists()
+
     return JsonResponse({'exists': exists})
 
 def add_new_user(request):
