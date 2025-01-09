@@ -282,9 +282,9 @@
     <div id="number-popup" style="border-radius: 15px; display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); padding:20px; background:rgba(0, 0, 0, 0.9); border:5px solid #00ffff; text-align:center; z-index: 1000; animation: fade-border 2s infinite;">
         <label for="number-input" style="font-weight: bold;color: #ff5e5e;">Enter PIN: </label>
         <input type="number" id="number-input" style="color:black;" />
-        <button onclick="submitNumber()" style="padding-left: 10px; text-decoration: underline;">Delete Countdown</button>
-        <button onclick="hideNumberPopup()" style="padding-left: 10px;">
-            <i class='fas fa-times' style='font-size:0.7em; color: red;'></i>
+        <button title="Delete Countdown"  onclick="submitNumber()" style="padding-left: 10px; text-decoration: underline;color: red;font-weight: bold;">Delete Countdown</button>
+        <button title="cancel" onclick="hideNumberPopup()" style="padding-left: 10px;">
+            <i class='fas fa-times-circle'  style='font-size:1em; color: red;'></i>
         </button>
     </div>
     
@@ -305,11 +305,12 @@
     
     
     <div class="headingContainer" >
-
-        <p style="margin-bottom: 0px; color: Red;font-weight: bold;font-size: 26px;text-shadow: 0 0 15px rgba(255, 98, 0, 0.8), 0 0 30px rgba(255, 102, 0, 0.6);">
-        Time is RUNNING...!</p> 
-        <a id="addEventLink" href="#"><i class='fas fa-hourglass-half' style='font-size:1em'></i><i class='fas fa-plus' style='font-size:1em'></i></a> &nbsp;&nbsp;
-        <a id="addUserLink" href="/time/addNewUser" style="padding-left: 10px;border-bottom: 0px solid #00ffff;"><i class='fas fa-user-plus' style='font-size:1em'></i></a>
+        
+       <p style="margin-bottom: 0px; color: Red;font-weight: bold;font-size: 26px;text-shadow: 0 0 15px rgba(255, 98, 0, 0.8), 0 0 30px rgba(255, 102, 0, 0.6);">
+        <a href="https://www.prajwalkadiyavar.com/" style="all: unset; cursor: pointer;">
+            Time is RUNNING...!</p> </a>
+        <a title="Add New Countdown" id="addEventLink" href="#"><i class='fas fa-hourglass-half' style='font-size:1em'></i><i class='fas fa-plus' style='font-size:1em'></i></a> &nbsp;&nbsp;
+        <a title="Create New User" id="addUserLink" href="/time/addNewUser" style="padding-left: 10px;border-bottom: 0px solid #00ffff;"><i class='fas fa-user-plus' style='font-size:1em'></i></a>
 
       </div>
     <!-- JSON Data for timers -->
@@ -323,7 +324,7 @@
             
             {{ timer.event_name }}
             <span style="position: absolute; right: 0; top: 0; display: inline-block;"> 
-                <a id="w" href="delCountdown/{{ userID }}/{{ timer.event_name }}" onclick='return enterPIN("delCountdown/{{ userID }}/{{ timer.event_name }}")'>
+                <a title="Delete Countdown"  id="w" href="delCountdown/{{ userID }}/{{ timer.event_name }}" onclick='return enterPIN("delCountdown/{{ userID }}/{{ timer.event_name }}")'>
                   <i class='fas fa-times' style='font-size:0.7em;color: red;'></i>
                 </a>
               </span>
