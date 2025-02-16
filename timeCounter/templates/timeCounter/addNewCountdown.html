@@ -1,6 +1,8 @@
 <script id="timers-data" type="application/json">{{ timers_json | safe }}</script>
 <!-- JSON Data for timers -->
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+        <link rel="icon" href="/static/hour_glass.png" type="image/x-icon">
+
 
 
 <div>
@@ -68,7 +70,7 @@
         });
     });
 
-    
+
 </script>
 
 
@@ -124,23 +126,23 @@
         document.getElementById("number-popup").style.display = "block";
         urlDelte=url
     }
-    
+
     function hideNumberPopup() {
         document.getElementById("number-popup").style.display = "none";
     }
-    
+
     async function submitNumber() {
         const number = document.getElementById("number-input").value;
-        
+
         if (number) {
-           
+
             await checkHash(number);
 
         } else {
             alert("Please enter a PIN to Delete countdown.");
         }
         hideNumberPopup();
-        
+
     }
     </script>
      <script>
@@ -149,7 +151,7 @@
 
         function hashInput(input) {
             // Hash the input using SHA256 in JavaScript
-            
+
             const encoder = new TextEncoder();
             const data = encoder.encode(input);
             return crypto.subtle.digest('SHA-256', data).then(buffer => {
@@ -165,10 +167,10 @@
             if (hashedInput === hashedValue) {
                 console.log("Countdown Deleted", urlDelte);
                 window.location.href = urlDelte;
-               
+
             } else {
                 alert("Error!! Entered PIN is  Wrong");
-               
+
             }
         }
     </script>
