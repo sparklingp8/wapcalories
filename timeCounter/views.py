@@ -9,6 +9,10 @@ import json
 import random
 import hashlib
 
+def robots_txt(request):
+    content = "User-agent: *\nDisallow: /"
+    return HttpResponse(content, content_type="text/plain")
+
 def check_username(request, username):
     """AJAX endpoint to check if username exists"""
 

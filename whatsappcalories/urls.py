@@ -15,9 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
+from timeCounter.views import robots_txt
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('wac/', include("WACGetData.urls")),
     path('time/',include("timeCounter.urls")),
+    path("robots.txt", robots_txt),
 ]
