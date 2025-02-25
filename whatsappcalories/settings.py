@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'timeCounter.middleware.robots.NoRobotsMiddleware',
 ]
 
 ROOT_URLCONF = 'whatsappcalories.urls'
