@@ -6,6 +6,94 @@ from .models import PersonData
 
 import time
 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.conf import settings
+
+
+@csrf_exempt
+def get_message_api(request):
+    if request.method == "GET":
+        return JsonResponse({"need data": "secret_key, unique_id, image*, caption*  ","Example":"""curl -X POST https://mynewnokiap8.pythonanywhere.com/wac/get_message_api/ -F "secret_key=my_super_secret_key" -F "unique_id=user123" -F "caption=Hello from curl" -F "image=@image.jpg"
+"""}, status=405)
+
+    if request.method != "POST":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+    secret_key = request.POST.get("secret_key")
+    unique_id = request.POST.get("unique_id")
+    image = request.FILES.get("image")
+    caption = request.POST.get("caption")
+
+    # 🔐 Validate secret key
+    if secret_key != settings.UPLOAD_SECRET_KEY:
+        return JsonResponse({"error": "Invalid secret key"}, status=403)
+
+    # 🔎 Validate unique_id
+    if not unique_id:
+        return JsonResponse({"error": "unique_id is required"}, status=400)
+
+    # 🧠 Require at least image or caption
+    if not image and not caption:
+        return JsonResponse(
+            {"error": "Either image or caption is required"},
+            status=400
+        )
+
+    #ToDo
+    #process messgae
+    # print(request)
+    # print("------ NEW REQUEST RECEIVED ------")
+    # print("Method:", request.method)
+    # print("Headers:", dict(request.headers))
+    # print("POST Data:", request.POST)
+    # print("FILES:", request.FILES)
+
+
+    return JsonResponse({"still in progress":"please wait 13/02/2026"}, status=201)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def get_data_mobile(request, pid, cal=0, mode=""):
 

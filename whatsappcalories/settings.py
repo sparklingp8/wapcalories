@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'WACGetData',
     'timeCounter',
+    'quotes',
 ]
 
 MIDDLEWARE = [
@@ -131,3 +132,6 @@ MEDIA_ROOT = '/home/mynewnokiap8/whatsappcalories/media'
 MEDIA_URL = '/media/'
 STATIC_ROOT = '/home/mynewnokiap8/whatsappcalories/static'
 STATIC_URL = '/static/'
+
+QUOTE_API_PASSWORD = "9242384553"
+UPLOAD_SECRET_KEY  = "9242384553"

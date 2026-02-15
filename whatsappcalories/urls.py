@@ -20,5 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('wac/', include("WACGetData.urls")),
     path('time/',include("timeCounter.urls")),
+    path('quotes/',include("quotes.urls")),
     path("robots.txt", robots_txt),
 ]

@@ -24,7 +24,7 @@ class NoRobotsMiddleware:
         if ip in self.request_history:
             requests = [t for t in self.request_history[ip]
                        if current_time - t < 60]
-            if len(requests) >= 5:
+            if len(requests) >= 15:
                 return HttpResponseForbidden("Too many requests")
             self.request_history[ip] = requests + [current_time]
         else:

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Quote</title>
+</head>
+<body>
+    <h2>Add New Quote</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div>
+            <label>Quote:</label><br>
+            <input type="text" name="quote" required>
+        </div>
+
+        <br>
+
+        <div>
+            <label>Password:</label><br>
+            <input type="password" name="password" required>
+        </div>
+
+        <br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+</body>
+</html>
