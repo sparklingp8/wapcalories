@@ -17,6 +17,18 @@ class UserProfile(models.Model):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
     dob = models.DateField()
 
+    # Physical measurements
+    weight = models.FloatField(null=True, blank=True, help_text="Current weight in kg")
+    height = models.FloatField(null=True, blank=True, help_text="Height in cm")
+    weight_last_updated = models.DateField(null=True, blank=True, help_text="Date when weight was last updated")
+
+    # Weight and nutrition goals
+    desired_weight = models.FloatField(null=True, blank=True, help_text="Target weight in kg")
+    calories_needed = models.FloatField(null=True, blank=True, help_text="Total calories needed to achieve desired weight")
+    target_protein = models.FloatField(null=True, blank=True, help_text="Target protein in grams per day")
+    target_carbs = models.FloatField(null=True, blank=True, help_text="Target carbs in grams per day")
+    target_fat = models.FloatField(null=True, blank=True, help_text="Target fat in grams per day")
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -33,6 +45,23 @@ class UserProfile(models.Model):
         )
 
 
+class PhoneNumberMapping(models.Model):
+    phone_number = models.CharField(max_length=20, unique=True, db_index=True)
+    user = models.OneToOneField(
+        UserProfile,
+        on_delete=models.CASCADE,
+        related_name="phone_mapping"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.phone_number} - {self.user.user_id}"
+
+
 class DailyEntry(models.Model):
     date = models.DateField(db_index=True)
     user = models.ForeignKey(
@@ -45,6 +74,7 @@ class DailyEntry(models.Model):
     value1 = models.FloatField() #protien
     value2 = models.FloatField() #carbs
     value3 = models.FloatField() #fat
+    current_calories = models.FloatField(null=True, blank=True, help_text="Sum of all calories for this day before this entry")
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -58,107 +88,3 @@ class DailyEntry(models.Model):
     def __str__(self):
         return f"{self.date} - {self.user.user_id} - {self.time}"
 
-# from datetime import date
-# from app.models import UserProfile
-
-# UserProfile.objects.create(
-#     user_id=9143,
-#     name="Rahul",
-#     gender="M",
-#     dob=date(1998, 5, 14)
-# )
-
-
-
-# 1️⃣ Get All Data For User X On Day M
-# from datetime import date
-# from app.models import UserProfile, DailyEntry
-
-# def get_data_for_day(user_id, year, month, day):
-#     target_date = date(year, month, day)
-
-#     entries = DailyEntry.objects.filter(
-#         user__user_id=user_id,
-#         date=target_date
-#     ).order_by("time")
-
-#     return entries
-
-
-
-# 2️⃣ Get Data From Day M To N
-# def get_data_range(user_id, start_date, end_date):
-#     entries = DailyEntry.objects.filter(
-#         user__user_id=user_id,
-#         date__range=(start_date, end_date)
-#     ).order_by("date", "time")
-
-#     return entries
-
-# ✅ 3️⃣ Get Daily Total For User
-# from django.db.models import Sum
-
-# def get_daily_total(user_id, target_date):
-#     totals = DailyEntry.objects.filter(
-#         user__user_id=user_id,
-#         date=target_date
-#     ).aggregate(
-#         total_v1=Sum("value1"),
-#         total_v2=Sum("value2"),
-#         total_v3=Sum("value3")
-#     )
-
-#     return totals
-
-
-# ✅ 4️⃣ Weekly Summary For User
-# from django.db.models import Sum
-
-# def weekly_summary(user_id, start_date, end_date):
-#     summary = (
-#         DailyEntry.objects
-#         .filter(
-#             user__user_id=user_id,
-#             date__range=(start_date, end_date)
-#         )
-#         .values("date")
-#         .annotate(
-#             total_v3=Sum("value3")
-#         )
-#         .order_by("date")
-#     )
-
-#     return summary
-
-
-# 5️⃣ User Add
-# from datetime import date
-
-# def add_user(user_id, name, gender, dob):
-#     user, created = UserProfile.objects.get_or_create(
-#         user_id=user_id,
-#         defaults={
-#             "name": name,
-#             "gender": gender,
-#             "dob": dob
-#         }
-#     )
-
-#     return user, created
-
-
-
-# ✅ 6️⃣ Update Data
-# Update User
-# def update_user_name(user_id, new_name):
-#     UserProfile.objects.filter(user_id=user_id).update(name=new_name)
-
-
-# Delete Data
-# Delete Single Entry
-# def delete_entry(user_id, target_date, target_time):
-#     DailyEntry.objects.filter(
-#         user__user_id=user_id,
-#         date=target_date,
-#         time=target_time
-#     ).delete()
