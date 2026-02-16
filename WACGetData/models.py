@@ -42,9 +42,9 @@ class DailyEntry(models.Model):
     )
     time = models.TimeField()
 
-    value1 = models.FloatField() #protien 
+    value1 = models.FloatField() #protien
     value2 = models.FloatField() #carbs
-    value3 = models.IntegerField() #fat
+    value3 = models.FloatField() #fat
 
     created_at = models.DateTimeField(auto_now_add=True)
 
