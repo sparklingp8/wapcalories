@@ -39,13 +39,13 @@ def get_message_api(request):
             "Example": "curl -X POST https://mynewnokiap8.pythonanywhere.com/wac/get_message_api/ -F \"secret_key=my_super_secret_key\" -F \"unique_id=user123\" -F \"caption=Hello from curl\" -F \"image=@image.jpg\""
         }, status=400)
 
-    if request.method != "POST":
-        return JsonResponse({"error": "Method not allowed"}, status=405)
+    # if request.method != "POST":
+    #     return JsonResponse({"error": "Method not allowed"}, status=405)
 
     secret_key = request.POST.get("secret_key")
-    phone_number = request.POST.get("unique_id")
+    phone_number = "user123"#request.POST.get("unique_id")
     caption = request.POST.get("caption")
-
+    print(secret_key,settings.UPLOAD_SECRET_KEY, request)
     # Validate authentication and required fields
     if secret_key != settings.UPLOAD_SECRET_KEY:
         return JsonResponse({"error": "Invalid secret key"}, status=403)
@@ -76,9 +76,9 @@ def get_message_api(request):
         }, status=400)
 
     # Process food entry through GPT
-    gpt_response = "(10,20,30)"#chat_with_gpt(caption)
+    gpt_response = chat_with_gpt(caption)
     gpt_response_str = str(gpt_response)
-    
+
     try:
         nutrition_data = eval(gpt_response_str)
     except Exception as e:
@@ -103,10 +103,10 @@ def get_message_api(request):
         }, status=201)
 
     # Calculate calories: protein*4 + carbs*4 + fat*9
-    protein = float(nutrition_data[0])
-    carbs = float(nutrition_data[1])
-    fat = float(nutrition_data[2])
-    calories = (protein * 4) + (carbs * 4) + (fat * 9)
+    protein = round(float(nutrition_data[0]), 2)
+    carbs = round(float(nutrition_data[1]), 2)
+    fat = round(float(nutrition_data[2]), 2)
+    calories = round((protein * 4) + (carbs * 4) + (fat * 9), 2)
 
     # Get current day's total calories before this entry
     today = timezone.localdate()
@@ -114,10 +114,10 @@ def get_message_api(request):
         user=user,
         date=today
     )
-    current_calories = sum(
+    current_calories = round(sum(
         (entry.value1 * 4) + (entry.value2 * 4) + (entry.value3 * 9)
         for entry in today_entries
-    )
+    ), 2)
 
     # Create daily entry
     DailyEntry.objects.create(
@@ -135,42 +135,44 @@ def get_message_api(request):
         user=user,
         date=today
     )
-    
-    today_protein = sum(entry.value1 for entry in today_entries)
-    today_carbs = sum(entry.value2 for entry in today_entries)
-    today_fat = sum(entry.value3 for entry in today_entries)
-    today_calories = sum(
+
+    today_protein = round(sum(entry.value1 for entry in today_entries), 2)
+    today_carbs = round(sum(entry.value2 for entry in today_entries), 2)
+    today_fat = round(sum(entry.value3 for entry in today_entries), 2)
+    today_calories = round(sum(
         (entry.value1 * 4) + (entry.value2 * 4) + (entry.value3 * 9)
         for entry in today_entries
-    )
+    ), 2)
 
     # Build target achievement status
     target_status = ""
     if user.target_protein:
         protein_achieved = "✅" if today_protein >= user.target_protein else "❌"
-        target_status += f"Protein: {today_protein}g / {user.target_protein}g {protein_achieved}\n"
+        target_status += f"Protein: {round(today_protein, 2)}g / {round(user.target_protein, 2)}g {protein_achieved}\n"
     if user.target_carbs:
         carbs_achieved = "✅" if today_carbs >= user.target_carbs else "❌"
-        target_status += f"Carbs: {today_carbs}g / {user.target_carbs}g {carbs_achieved}\n"
+        target_status += f"Carbs: {round(today_carbs, 2)}g / {round(user.target_carbs, 2)}g {carbs_achieved}\n"
     if user.target_fat:
         fat_achieved = "✅" if today_fat >= user.target_fat else "❌"
-        target_status += f"Fat: {today_fat}g / {user.target_fat}g {fat_achieved}\n"
+        target_status += f"Fat: {round(today_fat, 2)}g / {round(user.target_fat, 2)}g {fat_achieved}\n"
 
     calories_status = ""
     if user.calories_needed:
         calories_achieved = "✅" if today_calories >= user.calories_needed else "❌"
-        calories_status = f"Calories: {today_calories}kcal / {user.calories_needed}kcal {calories_achieved}\n"
+        calories_status = f"Calories: {round(today_calories, 2)}kcal / {round(user.calories_needed, 2)}kcal {calories_achieved}\n"
 
     return JsonResponse({
         "message": (
             f"Hi {user.name} your food/drinks nutrients : {caption}\n\n"
-            f"Protein: {nutrition_data[0]} g\n"
-            f"Carbs: {nutrition_data[1]} g\n"
-            f"Fat: {nutrition_data[2]} g\n"
-            f"Calories Consumed Now: {calories} kcal\n\n"            
-            f"Today's Total Calories: {today_calories} kcal\n"
+            f"Protein: {round(nutrition_data[0], 2)} g\n"
+            f"Carbs: {round(nutrition_data[1], 2)} g\n"
+            f"Fat: {round(nutrition_data[2], 2)} g\n"
+            f"Calories Consumed Now: {round(calories, 2)} kcal\n\n"
+            f"*======================*\n"
+            f"*Todays Goals Status*\n"
+            f"*======================*\n"
+            f"{target_status}"
             f"{calories_status}"
-            f"{target_status}\n"
             f"New food recorded successfully ✅"
         )
     }, status=201)
@@ -182,15 +184,15 @@ def _handle_delete_request(user_id: int) -> JsonResponse:
 
     if deleted:
         protein, carbs, fat = deleted
-        deleted_calories = (protein * 4) + (carbs * 4) + (fat * 9)
-        
+        deleted_calories = round((protein * 4) + (carbs * 4) + (fat * 9), 2)
+
         return JsonResponse({
             "message": (
                 "🗑️ Last food entry deleted successfully.\n\n"
-                f"Protein Removed: {protein} g\n"
-                f"Carbs Removed: {carbs} g\n"
-                f"Fat Removed: {fat} g\n"
-                f"Calories Removed: {deleted_calories} kcal\n\n"
+                f"Protein Removed: {round(protein, 2)} g\n"
+                f"Carbs Removed: {round(carbs, 2)} g\n"
+                f"Fat Removed: {round(fat, 2)} g\n"
+                f"Calories Removed: {round(deleted_calories, 2)} kcal\n\n"
                 "Your latest record has been removed."
             )
         }, status=200)
@@ -203,49 +205,51 @@ def _handle_delete_request(user_id: int) -> JsonResponse:
 def _handle_stats_request(user_id: int) -> JsonResponse:
     """Handle stats request for today's nutrient summary."""
     user = UserProfile.objects.get(user_id=user_id)
-    
+
     # Get today's entries
     today_entries = DailyEntry.objects.filter(
         user=user,
         date=timezone.localdate()
     )
-    
+
     # Calculate totals
-    today_protein = sum(entry.value1 for entry in today_entries)
-    today_carbs = sum(entry.value2 for entry in today_entries)
-    today_fat = sum(entry.value3 for entry in today_entries)
-    today_calories = sum(
+    today_protein = round(sum(entry.value1 for entry in today_entries), 2)
+    today_carbs = round(sum(entry.value2 for entry in today_entries), 2)
+    today_fat = round(sum(entry.value3 for entry in today_entries), 2)
+    today_calories = round(sum(
         (entry.value1 * 4) + (entry.value2 * 4) + (entry.value3 * 9)
         for entry in today_entries
-    )
+    ), 2)
 
     # Build target achievement status
     target_status = ""
     if user.target_protein:
         protein_achieved = "✅" if today_protein >= user.target_protein else "❌"
-        target_status += f"*Protein:* {today_protein}g / {user.target_protein}g {protein_achieved}\n"
+        target_status += f"*Protein:* {round(today_protein, 2)}g / {round(user.target_protein, 2)}g {protein_achieved}\n"
     if user.target_carbs:
         carbs_achieved = "✅" if today_carbs >= user.target_carbs else "❌"
-        target_status += f"*Carbs:* {today_carbs}g / {user.target_carbs}g {carbs_achieved}\n"
+        target_status += f"*Carbs:* {round(today_carbs, 2)}g / {round(user.target_carbs, 2)}g {carbs_achieved}\n"
     if user.target_fat:
         fat_achieved = "✅" if today_fat >= user.target_fat else "❌"
-        target_status += f"*Fat:* {today_fat}g / {user.target_fat}g {fat_achieved}\n"
+        target_status += f"*Fat:* {round(today_fat, 2)}g / {round(user.target_fat, 2)}g {fat_achieved}\n"
 
     calories_status = ""
     if user.calories_needed:
         calories_achieved = "✅" if today_calories >= user.calories_needed else "❌"
-        calories_status = f"*Calories:* {today_calories}kcal / {user.calories_needed}kcal {calories_achieved}\n"
+        calories_status = f"*Calories:* {round(today_calories, 2)}kcal / {round(user.calories_needed, 2)}kcal {calories_achieved}\n"
 
     return JsonResponse({
         "message": (
             f"*📊 Today's Nutrient Summary*\n\n"
-            f"*Total Calories:* {today_calories} kcal\n"
-            f"{calories_status}"
-            f"*Protein:* {today_protein} g\n"
-            f"*Carbs:* {today_carbs} g\n"
-            f"*Fat:* {today_fat} g\n\n"
-            f"*Daily Targets*\n"
+            f"*Protein Consumed Today::* {round(today_protein, 2)} g\n"
+            f"*Carbs Consumed Today::* {round(today_carbs, 2)} g\n"
+            f"*Fats Consumed Today::* {round(today_fat, 2)} g\n\n"
+            f"*Calories Consumed Today:* {round(today_calories, 2)} kcal\n"
+            f"*======================*\n"
+            f"*Todays Goals Status*\n"
+            f"*======================*\n"
             f"{target_status}"
+            f"{calories_status}"
         )
     }, status=201)
 
@@ -268,7 +272,7 @@ def get_msg(request):
 
 def add_daily_entry(user_id: int, entry_date, entry_time, v1: float, v2: float, v3: float) -> DailyEntry:
     """Create a daily nutrition entry for a user.
-    
+
     Args:
         user_id: The user's ID
         entry_date: The date of the entry
@@ -276,7 +280,7 @@ def add_daily_entry(user_id: int, entry_date, entry_time, v1: float, v2: float, 
         v1: Protein value in grams
         v2: Carbs value in grams
         v3: Fat value in grams
-        
+
     Returns:
         The created DailyEntry object
     """
@@ -294,10 +298,10 @@ def add_daily_entry(user_id: int, entry_date, entry_time, v1: float, v2: float, 
 
 def chat_with_gpt(message: str) -> Tuple[int, int, int]:
     """Send message to GPT and return nutrition values.
-    
+
     Args:
         message: Food description to analyze
-        
+
     Returns:
         Tuple of (protein_g, carbs_g, fat_g) or (-1, -1, -1) on error
     """
@@ -328,10 +332,10 @@ def chat_with_gpt(message: str) -> Tuple[int, int, int]:
 
 def delete_last_record(user_id: int):
     """Delete the most recent food entry for a user.
-    
+
     Args:
         user_id: The user's ID
-        
+
     Returns:
         Tuple of deleted macro values (protein, carbs, fat) or None if not found
     """
@@ -342,7 +346,7 @@ def delete_last_record(user_id: int):
             .order_by('-created_at')
             .first()
         )
-        
+
         if latest_entry:
             deleted_values = (
                 latest_entry.value1,
@@ -352,7 +356,7 @@ def delete_last_record(user_id: int):
             latest_entry.delete()
             logger.info("Deleted entry for user %s: %s", user_id, deleted_values)
             return deleted_values
-            
+
     except Exception as e:
         logger.error("Error deleting record for user %s: %s", user_id, e)
 
