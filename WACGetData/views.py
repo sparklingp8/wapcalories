@@ -10,6 +10,24 @@ from django.views.decorators.csrf import csrf_exempt
 from openai import OpenAI
 
 from .models import DailyEntry, UserProfile, PhoneNumberMapping
+from .profile_updates import (
+    get_today_nutrition_totals,
+    build_target_status,
+    build_calories_status,
+    get_user_by_phone,
+    get_daily_entries_for_today,
+    update_user_weight,
+    update_user_height,
+    update_user_desired_weight,
+    update_user_physical_details,
+    get_user_physical_details,
+    update_user_name,
+    update_user_dob,
+    validate_dob,
+    get_user_all_data,
+    create_user_from_phone,
+    handle_update_command
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +61,7 @@ def get_message_api(request):
     #     return JsonResponse({"error": "Method not allowed"}, status=405)
 
     secret_key = request.POST.get("secret_key")
-    phone_number = "user123"#request.POST.get("unique_id")
+    phone_number = request.POST.get("unique_id")
     caption = request.POST.get("caption")
     print(secret_key,settings.UPLOAD_SECRET_KEY, request)
     # Validate authentication and required fields
@@ -53,14 +71,70 @@ def get_message_api(request):
     if not phone_number:
         return JsonResponse({"error": "unique_id (phone_number) is required"}, status=400)
 
-    # Resolve phone number to user_id
+    # Resolve phone number to user
     try:
-        phone_mapping = PhoneNumberMapping.objects.get(phone_number=phone_number)
-        user_id = phone_mapping.user.user_id
-    except PhoneNumberMapping.DoesNotExist:
+        user = get_user_by_phone(phone_number)
+    except Exception as e:
+        # Phone number not found, create new user
+        user = create_user_from_phone(phone_number)
         return JsonResponse({
-            "error": f"Phone number {phone_number} not found in system"
-        }, status=404)
+            "message": (
+                f"👋 Welcome! I've created your account.\n\n"
+                f"To get started, please provide:\n\n"
+                f"1️⃣ Your name:\n"
+                f"*my name is John*\n\n"
+                f"2️⃣ Your date of birth:\n"
+                f"*update dob 1990-05-15*\n\n"
+                f"(Use format: YYYY-MM-DD)"
+            )
+        }, status=201)
+    
+    user_id = user.user_id
+    
+    # Check if user hasn't set their name yet
+    if user.name == "New User":
+        # Allow setting name, block everything else
+        if not (caption and caption.lower().startswith("my name is ")):
+            return JsonResponse({
+                "message": (
+                    f"👋 Welcome! Before we proceed, please set your name:\n\n"
+                    f"*my name is Your Name*\n\n"
+                    f"Replace 'Your Name' with your actual name."
+                )
+            }, status=201)
+    
+    # Check if user is setting their name
+    if caption and caption.lower().startswith("my name is "):
+        name = caption[11:].strip()  # Extract name after "my name is "
+        if name:
+            update_user_name(user, name)
+            return JsonResponse({
+                "message": (
+                    f"✅ Hi {name}! I've updated your name.\n\n"
+                    f"Now please update your physical details one by one:\n\n"
+                    f"1️⃣ *Current Weight (in kg):*\n"
+                    f"update weight 75.5\n\n"
+                    f"2️⃣ *Desired Weight (in kg):*\n"
+                    f"update desired_weight 70\n\n"
+                    f"3️⃣ *Height (in cm):*\n"
+                    f"update height 180\n\n"
+                    f"Once you provide all three, I'll calculate your nutrition goals! 🎯"
+                )
+            }, status=201)
+
+    # Handle info command
+    if caption and caption.lower().strip() == "my info":
+        result = get_user_all_data(user)
+        return JsonResponse({
+            "message": result['message']
+        }, status=201)
+
+    # Handle update command
+    if caption and caption.lower().startswith("update "):
+        result = handle_update_command(user, caption)
+        return JsonResponse({
+            "message": result['message']
+        }, status=201)
 
     # Handle delete command
     if caption and "delete" in caption.lower():
@@ -96,7 +170,8 @@ def get_message_api(request):
     if nutrition_data[0] == -1 or nutrition_data[1] == -1:
         return JsonResponse({
             "message": (
-                f"❌ Couldn't process this food entry:\n\n"
+                f"Hi {user.name}! ❌\n\n"
+                f"Couldn't process this food entry:\n\n"
                 f"{caption}\n\n"
                 f"Please try again with clear food details."
             )
@@ -110,13 +185,9 @@ def get_message_api(request):
 
     # Get current day's total calories before this entry
     today = timezone.localdate()
-    today_entries = DailyEntry.objects.filter(
-        user=user,
-        date=today
-    )
     current_calories = round(sum(
         (entry.value1 * 4) + (entry.value2 * 4) + (entry.value3 * 9)
-        for entry in today_entries
+        for entry in get_daily_entries_for_today(user)
     ), 2)
 
     # Create daily entry
@@ -131,6 +202,9 @@ def get_message_api(request):
     )
 
     # Get today's totals including the newly created entry
+    nutrition_totals = get_today_nutrition_totals(user)
+    target_status = build_target_status(user, nutrition_totals)
+    calories_status = build_calories_status(user, nutrition_totals)
     today_entries = DailyEntry.objects.filter(
         user=user,
         date=today
@@ -163,13 +237,20 @@ def get_message_api(request):
 
     return JsonResponse({
         "message": (
-            f"Hi {user.name} your food/drinks nutrients : {caption}\n\n"
+            f"Hi {user.name}! 🍽️\n\n"
+            f"Your food entry: {caption}\n\n"
+            f"*Nutritional Info:*\n"
             f"Protein: {round(nutrition_data[0], 2)} g\n"
             f"Carbs: {round(nutrition_data[1], 2)} g\n"
             f"Fat: {round(nutrition_data[2], 2)} g\n"
-            f"Calories Consumed Now: {round(calories, 2)} kcal\n\n"
+            f"Calories: {round(calories, 2)} kcal\n\n"
+            f"*Today's Totals:*\n"
+            f"Total Calories: {round(today_calories, 2)} kcal\n"
+            f"Protein: {round(today_protein, 2)}g\n"
+            f"Carbs: {round(today_carbs, 2)}g\n"
+            f"Fat: {round(today_fat, 2)}g\n\n"
             f"*======================*\n"
-            f"*Todays Goals Status*\n"
+            f"*Today's Goals Status*\n"
             f"*======================*\n"
             f"{target_status}"
             f"{calories_status}"
@@ -180,6 +261,7 @@ def get_message_api(request):
 
 def _handle_delete_request(user_id: int) -> JsonResponse:
     """Handle deletion of the last food entry."""
+    user = UserProfile.objects.get(user_id=user_id)
     deleted = delete_last_record(user_id=user_id)
 
     if deleted:
@@ -188,24 +270,28 @@ def _handle_delete_request(user_id: int) -> JsonResponse:
 
         return JsonResponse({
             "message": (
-                "🗑️ Last food entry deleted successfully.\n\n"
+                f"Hi {user.name}! 🗑️\n\n"
+                f"Last food entry deleted successfully.\n\n"
                 f"Protein Removed: {round(protein, 2)} g\n"
                 f"Carbs Removed: {round(carbs, 2)} g\n"
                 f"Fat Removed: {round(fat, 2)} g\n"
                 f"Calories Removed: {round(deleted_calories, 2)} kcal\n\n"
-                "Your latest record has been removed."
+                f"Your latest record has been removed."
             )
         }, status=200)
 
     return JsonResponse({
-        "message": "⚠️ No recent food entry found to delete."
+        "message": f"Hey {user.name}! ⚠️ No recent food entry found to delete."
     }, status=200)
 
 
 def _handle_stats_request(user_id: int) -> JsonResponse:
     """Handle stats request for today's nutrient summary."""
     user = UserProfile.objects.get(user_id=user_id)
-
+    
+    # Get today's nutrition totals
+    nutrition_totals = get_today_nutrition_totals(user)
+    
     # Get today's entries
     today_entries = DailyEntry.objects.filter(
         user=user,
@@ -240,13 +326,14 @@ def _handle_stats_request(user_id: int) -> JsonResponse:
 
     return JsonResponse({
         "message": (
-            f"*📊 Today's Nutrient Summary*\n\n"
-            f"*Protein Consumed Today::* {round(today_protein, 2)} g\n"
-            f"*Carbs Consumed Today::* {round(today_carbs, 2)} g\n"
-            f"*Fats Consumed Today::* {round(today_fat, 2)} g\n\n"
-            f"*Calories Consumed Today:* {round(today_calories, 2)} kcal\n"
+            f"Hi {user.name}! 📊\n\n"
+            f"*Today's Nutrient Summary*\n\n"
+            f"*Calories Consumed:* {round(today_calories, 2)} kcal\n"
+            f"*Protein:* {round(today_protein, 2)} g\n"
+            f"*Carbs:* {round(today_carbs, 2)} g\n"
+            f"*Fat:* {round(today_fat, 2)} g\n\n"
             f"*======================*\n"
-            f"*Todays Goals Status*\n"
+            f"*Today's Goals Status*\n"
             f"*======================*\n"
             f"{target_status}"
             f"{calories_status}"
