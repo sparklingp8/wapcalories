@@ -250,8 +250,7 @@ def get_message_api(request):
             f"*======================*\n\n"
             f"{target_status}"
             f"{calories_status}"
-            f"New food recorded successfully ✅"\n
-        )
+            f"New food recorded successfully ✅\n"  )
     }, status=201)
 
 
