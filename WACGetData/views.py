@@ -63,7 +63,7 @@ def get_message_api(request):
     secret_key = request.POST.get("secret_key")
     phone_number = request.POST.get("unique_id")
     caption = request.POST.get("caption")
-    print(secret_key,settings.UPLOAD_SECRET_KEY, request)
+    print(request.POST, request.POST.get("unique_id"),"log123")
     # Validate authentication and required fields
     if secret_key != settings.UPLOAD_SECRET_KEY:
         return JsonResponse({"error": "Invalid secret key"}, status=403)
@@ -88,9 +88,9 @@ def get_message_api(request):
                 f"(Use format: YYYY-MM-DD)"
             )
         }, status=201)
-    
+
     user_id = user.user_id
-    
+
     # Check if user hasn't set their name yet
     if user.name == "New User":
         # Allow setting name, block everything else
@@ -102,7 +102,7 @@ def get_message_api(request):
                     f"Replace 'Your Name' with your actual name."
                 )
             }, status=201)
-    
+
     # Check if user is setting their name
     if caption and caption.lower().startswith("my name is "):
         name = caption[11:].strip()  # Extract name after "my name is "
@@ -244,17 +244,13 @@ def get_message_api(request):
             f"Carbs: {round(nutrition_data[1], 2)} g\n"
             f"Fat: {round(nutrition_data[2], 2)} g\n"
             f"Calories: {round(calories, 2)} kcal\n\n"
-            f"*Today's Totals:*\n"
-            f"Total Calories: {round(today_calories, 2)} kcal\n"
-            f"Protein: {round(today_protein, 2)}g\n"
-            f"Carbs: {round(today_carbs, 2)}g\n"
-            f"Fat: {round(today_fat, 2)}g\n\n"
+
             f"*======================*\n"
             f"*Today's Goals Status*\n"
-            f"*======================*\n"
+            f"*======================*\n\n"
             f"{target_status}"
             f"{calories_status}"
-            f"New food recorded successfully ✅"
+            f"New food recorded successfully ✅"\n
         )
     }, status=201)
 
@@ -288,10 +284,10 @@ def _handle_delete_request(user_id: int) -> JsonResponse:
 def _handle_stats_request(user_id: int) -> JsonResponse:
     """Handle stats request for today's nutrient summary."""
     user = UserProfile.objects.get(user_id=user_id)
-    
+
     # Get today's nutrition totals
     nutrition_totals = get_today_nutrition_totals(user)
-    
+
     # Get today's entries
     today_entries = DailyEntry.objects.filter(
         user=user,
