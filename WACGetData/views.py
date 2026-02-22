@@ -36,7 +36,7 @@ DEFAULT_USER_ID = 7
 OPENAI_MODEL = "gpt-4.1-mini"
 GPT_TEMPERATURE = 0
 
-SYSTEM_PROMPT = """You are a Nutrition Expert. 
+SYSTEM_PROMPT = """You are a Nutrition Expert.
 From the input text, calculate total Protein, Carbs, and Fat (in grams) for all food/drink items.
 Keep in mind these might also be Indian food items
 Output ONLY a tuple in this format:
@@ -48,13 +48,14 @@ Do not include any explanation or extra text."""
 # Initialize OpenAI client
 client = OpenAI(api_key=settings.CHAT_API_KEY)
 
-def make_progress_bar(current, target, length=10):
+def make_progress_bar(current, target,  stat=False, length=5):
     if target == 0:
         return "[No target]"
     percent = current / target
     filled = int(length * percent)
     bar = "█" * filled + "-" * (length - filled)
-    return f"{bar} {round(percent*100,1)}% ({int(current)}/{int(target)})"
+    data = f"\n({int(current)}/{int(target)})" if stat else ""
+    return f"{bar} {round(percent*100,1)}% {data}"
 
 
 @csrf_exempt
@@ -227,7 +228,7 @@ def get_message_api(request):
         for entry in today_entries
     ), 2)
 
-    
+
     # Example WhatsApp message
     message = (
         f"Hi {user.name}! 🍽️\n\n"
@@ -239,20 +240,20 @@ def get_message_api(request):
         f"Calories: {round(calories, 1)} kcal\n\n"
         f"New food recorded successfully ✅"
 
-        f"*======================*\n"
+        f"\n\n*======================*\n"
         f"*Today's Goals Status*\n"
         f"*======================*\n\n"
         f"Protein: {make_progress_bar(today_protein, user.target_protein)} {'✅' if today_protein >= user.target_protein else '❌'}\n"
         f"Carbs:   {make_progress_bar(today_carbs, user.target_carbs)} {'✅' if today_carbs >= user.target_carbs else '❌'}\n"
-        f"Fat:     {make_progress_bar(today_fat, user.target_fat)} {'✅' if today_fat >= user.target_fat else '❌'}\n"
-        f"Calories:{make_progress_bar(today_calories, user.calories_needed)} {'✅' if today_calories >= user.calories_needed else '❌'}\n\n"
-        
+        f"Fat:       {make_progress_bar(today_fat, user.target_fat)} {'✅' if today_fat >= user.target_fat else '❌'}\n"
+        f"Calories: {make_progress_bar(today_calories, user.calories_needed)} {'✅' if today_calories >= user.calories_needed else '❌'}\n\n"
+
     )
 
 
     return JsonResponse({
-        "message": f"Hey {user.name}! ⚠️ No recent food entry found to delete."
-    }, status=200)
+        "message": message
+    }, status=201)
 
 def _handle_delete_request(user_id: int) -> JsonResponse:
     """Handle deletion of the last food entry."""
@@ -302,22 +303,22 @@ def _handle_stats_request(user_id: int) -> JsonResponse:
         for entry in today_entries
     ), 2)
 
-    # Build target achievement status    
+    # Build target achievement status
     target_status = ""
     if user.target_protein:
         protein_achieved = "✅" if today_protein >= user.target_protein else "❌"
-        target_status += f"Protein: {make_progress_bar(today_protein, user.target_protein)} {protein_achieved}\n"
+        target_status += f"Protein: {make_progress_bar(today_protein, user.target_protein, True)}g {protein_achieved}\n"
     if user.target_carbs:
         carbs_achieved = "✅" if today_carbs >= user.target_carbs else "❌"
-        target_status += f"Carbs:   {make_progress_bar(today_carbs, user.target_carbs)} {carbs_achieved}\n"
+        target_status += f"Carbs:   {make_progress_bar(today_carbs, user.target_carbs, True)}g {carbs_achieved}\n"
     if user.target_fat:
         fat_achieved = "✅" if today_fat >= user.target_fat else "❌"
-        target_status += f"Fat:     {make_progress_bar(today_fat, user.target_fat)} {fat_achieved}\n"
+        target_status += f"Fat:     {make_progress_bar(today_fat, user.target_fat,True)}g {fat_achieved}\n"
 
     calories_status = ""
     if user.calories_needed:
         calories_achieved = "✅" if today_calories >= user.calories_needed else "❌"
-        calories_status = f"Calories:{make_progress_bar(today_calories, user.calories_needed)} {calories_achieved}\n"
+        calories_status = f"Calories:{make_progress_bar(today_calories, user.calories_needed, True)}kcal {calories_achieved}\n"
 
     return JsonResponse({
         "message": (
