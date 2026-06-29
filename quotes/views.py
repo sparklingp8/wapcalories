@@ -34,6 +34,9 @@ def random_quote_api(request):
 
 
 
+def dashBoard(request):
+    if request.method == "GET":
+        return render(request, "quotes/session_dashboard.html")
 
 def add_quote_api(request):
     if request.method == "GET":
